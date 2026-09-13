@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Visit Tasks</title>
+
+    <!-- Google Fonts & FontAwesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- Firebase v8 SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --border-color: #e2e8f0;
+            --accent-glow: rgba(37, 99, 235, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Hind Siliguri', 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.05) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.05) 0px, transparent 50%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px 15px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 440px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            border-bottom: 1px solid var(--border-color);
+            padding: 24px 20px 20px;
+            text-align: center;
+        }
+
+        .header .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #eff6ff;
+            color: var(--primary-color);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            border: 1px solid #dbeafe;
+        }
+
+        .header h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .header p {
+            font-size: 13.5px;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        .user-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            border: 1px solid var(--border-color);
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--success-color);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+        }
+
+        .logout-btn {
+            background: #fff;
+            color: var(--danger-color);
+            border: 1px solid #fecaca;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .logout-btn:hover {
+            background: var(--danger-color);
+            color: white;
+            border-color: var(--danger-color);
+        }
+
+        .user-stats-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1.5px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 18px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        .stats-box {
+            flex: 1;
+            text-align: center;
+        }
+
+        .stats-label {
+            display: block;
+            font-size: 12.5px;
+            color: #64748b;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .stats-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: #2563eb;
+        }
+
+        .stats-divider {
+            width: 1px;
+            height: 35px;
+            background-color: #cbd5e1;
+            margin: 0 10px;
+        }
+
+        .content {
+            padding: 24px 20px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            color: #94a3b8;
+            font-size: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 14px 12px 40px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            background-color: #fff;
+            transition: all 0.2s ease;
+            color: var(--text-main);
+        }
+
+        input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px var(--accent-glow);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 13px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .captcha-card {
+            background: #f8fafc;
+            border: 1.5px dashed #cbd5e1;
+            padding: 18px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .captcha-title {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .captcha-math {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+            background: #ffffff;
+            display: inline-block;
+            padding: 4px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .captcha-card input {
+            padding-left: 14px;
+            text-align: center;
+        }
+
+        .timer-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #eff6ff;
+            color: var(--primary-color);
+            border: 1px solid #bfdbfe;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 15px;
+            margin: 15px 0;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.2); }
+            70% { box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+        }
+
+        .status-message {
+            margin-top: 18px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            font-weight: 600;
+            text-align: center;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .status-success {
+            display: flex !important;
+            background-color: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .status-danger {
+            display: flex !important;
+            background-color: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 11.5px;
+            color: #94a3b8;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="badge"><i class="fa-solid fa-shield-halved"></i> 100% Verified Tasks</div>
+        <h2><i class="fa-solid fa-globe" style="color: var(--primary-color);"></i> Web Visit Portal</h2>
+        <p>সহজে ওয়েবসাইট ভিউ সম্পন্ন করুন এবং পয়েন্ট জমা করুন</p>
+    </div>
+
+    <div class="content">
+
+        <!-- ১. লগইন ফর্ম -->
+        <div id="loginSection">
+            <div class="form-group">
+                <label for="userPhone">মোবাইল নম্বর</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-phone input-icon"></i>
+                    <input type="tel" id="userPhone" placeholder="01XXXXXXXXX" maxlength="11">
+                </div>
+            </div>
+            <button id="loginBtn" class="btn" onclick="loginUser()">
+                <span>লগইন করুন</span> <i class="fa-solid fa-arrow-right-to-bracket"></i>
+            </button>
+            
+            <div id="loginStatusMsg" class="status-message"></div>
+        </div>
+
+        <!-- ২. টাস্ক ড্যাশবোর্ড -->
+        <div id="taskSection" class="hidden">
+
+            <!-- ইউজার স্ট্যাটাস ও লগআউট বাটন -->
+            <div class="user-bar">
+                <span class="status-pill">
+                    স্ট্যাটাস: <span class="status-dot"></span> <strong style="color: var(--success-color);">Active</strong>
+                </span>
+                <button class="logout-btn" onclick="logoutUser()">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> লগআউট
+                </button>
+            </div>
+
+            <!-- কাজের তথ্য দেখানোর ঘর -->
+            <div class="user-stats-card">
+                <div class="stats-box">
+                    <span class="stats-label"><i class="fa-solid fa-list-check"></i> মোট নির্ধারিত কাজ</span>
+                    <span class="stats-value" id="adminTotalTasks">0</span>
+                </div>
+                <div class="stats-divider"></div>
+                <div class="stats-box">
+                    <span class="stats-label"><i class="fa-solid fa-circle-check"></i> আপনার সম্পন্ন কাজ</span>
+                    <span class="stats-value" id="userCompletedTasks">0</span>
+                </div>
+            </div>
+
+            <!-- ক্যাপচা বক্স -->
+            <div id="captchaBox" class="captcha-card">
+                <div class="captcha-title">
+                    <i class="fa-solid fa-lock"></i> নিরাপত্তা যাচাইকরণের জন্য উত্তর দিন:
+                </div>
+                <div class="captcha-math" id="mathQuestion">0 + 0 = ?</div>
+                <div class="input-wrapper">
+                    <input type="number" id="mathAnswer" placeholder="সঠিক উত্তরটি লিখুন">
+                </div>
+            </div>
+
+            <!-- ভিজিট স্টার্ট বাটন -->
+            <button id="visitBtn" class="btn" onclick="startVisitTask()">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> ওয়েবসাইট ভিজিট করুন
+            </button>
+
+            <!-- টাইমার কাউন্টডাউন -->
+            <div id="timerSection" class="hidden" style="text-align: center;">
+                <div class="timer-badge">
+                    <i class="fa-solid fa-stopwatch"></i> অপেক্ষা করুন: <span id="timerCount">0</span> সেকেন্ড
+                </div>
+            </div>
+
+            <!-- ভেরিফাই সেকশন (টাইম শেষ হলে দৃশ্যমান হবে) -->
+            <div id="verifySection" class="hidden" style="margin-top: 15px;">
+                <div class="form-group">
+                    <label for="copiedUrlInput">ভিজিট করা ওয়েবসাইটের লিংক দিন:</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-link input-icon"></i>
+                        <input type="url" id="copiedUrlInput" placeholder="https://example.com (কপি করা লিংক)">
+                    </div>
+                </div>
+
+                <button id="verifyBtn" class="btn btn-success" onclick="verifyTaskAndReward()">
+                    <i class="fa-solid fa-circle-check"></i> যাচাই ও পয়েন্ট ক্লেইম করুন
+                </button>
+            </div>
+
+            <!-- টাস্ক স্ক্রিনের নোটিশ বক্স -->
+            <div id="statusMsg" class="status-message"></div>
+
+        </div>
+
+        <div class="footer-note">
+            <i class="fa-solid fa-lock"></i> Secure Encrypted Verification System
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // ফায়ারবেস কনফিগারেশন
+    const mainAppConfig = {
+        databaseURL: "https://smart-earn-official-default-rtdb.firebaseio.com/"
+    };
+    const webControlConfig = {
+        databaseURL: "https://website-43df2-default-rtdb.firebaseio.com/"
+    };
+
+    // Firebase ইনিশিয়ালাইজেশন
+    const mainApp = firebase.initializeApp(mainAppConfig, "mainApp");
+    const webControlApp = firebase.initializeApp(webControlConfig, "webControlApp");
+
+    const mainDB = mainApp.database();
+    const webDB = webControlApp.database();
+
+    // গ্লোবাল ভ্যারিয়েবল
+    let currentPhone = "";
+    let targetUrl = "";
+    let requiredTime = 0;
+    let rewardPoints = 0;
+    let totalLimit = 0;
+    let currentVisits = 0;
+
+    let num1 = 0, num2 = 0, correctAnswer = 0;
+    let taskStartTime = 0;
+    let timerInterval = null;
+    let statusTimeout = null;
+
+    const TAB_LOCK_KEY = 'active_task_tab_timestamp';
+
+    // অটো-লগইন চেক
+    window.onload = function() {
+        const savedPhone = localStorage.getItem("user_phone");
+        if (savedPhone) {
+            currentPhone = savedPhone;
+            showDashboard();
+        }
+    };
+
+    // ১. লগইন প্রসেস
+    function loginUser() {
+        const phoneInput = document.getElementById("userPhone");
+        const loginBtn = document.getElementById("loginBtn");
+        const phone = phoneInput.value.trim();
+
+        if (phone.length < 11) {
+            showStatus("সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন।", "danger", 3000, "loginStatusMsg");
+            return;
+        }
+
+        setButtonLoading(loginBtn, true, "লগইন হচ্ছে...");
+        phoneInput.disabled = true;
+
+        mainDB.ref("users/" + phone).once("value", (snapshot) => {
+            if (snapshot.exists()) {
+                currentPhone = phone;
+                localStorage.setItem("user_phone", currentPhone);
+                showDashboard();
+            } else {
+                showStatus("এই নম্বরটি মেইন অ্যাপে নিবন্ধিত নয়।", "danger", 3000, "loginStatusMsg");
+                setButtonLoading(loginBtn, false, "লগইন করুন");
+                phoneInput.disabled = false;
+            }
+        });
+    }
+
+    // ড্যাশবোর্ড দেখানো
+    function showDashboard() {
+        document.getElementById("loginSection").classList.add("hidden");
+        document.getElementById("taskSection").classList.remove("hidden");
+        
+        const visitBtn = document.getElementById("visitBtn");
+        setButtonLoading(visitBtn, true, "তথ্য লোড হচ্ছে...");
+        
+        listenToAdminSettings();
+        fetchUserCompletedCount();
+    }
+
+    // লগআউট
+    function logoutUser() {
+        localStorage.removeItem("user_phone");
+        localStorage.removeItem(TAB_LOCK_KEY);
+        location.reload();
+    }
+
+    // ২. এডমিন সেটিং রিড
+    function listenToAdminSettings() {
+        const visitBtn = document.getElementById("visitBtn");
+
+        webDB.ref("taskSettings").on("value", (snapshot) => {
+            const data = snapshot.val();
+
+            if (!data) {
+                disableTaskSystem("বর্তমানে কোনো কাজ উপলব্ধ নেই।");
+                document.getElementById("adminTotalTasks").innerText = "0";
+                return;
+            }
+
+            targetUrl = (data.url || "").trim();
+            requiredTime = parseInt(data.time) || 0;
+            rewardPoints = parseInt(data.points) || 0;
+            totalLimit = parseInt(data.totalLimit) || 0;
+            currentVisits = parseInt(data.currentVisits) || 0;
+
+            document.getElementById("adminTotalTasks").innerText = totalLimit;
+
+            if (!targetUrl || targetUrl === "") {
+                disableTaskSystem("বর্তমানে কাজ বন্ধ রয়েছে।");
+            } else if (totalLimit === 0 || currentVisits >= totalLimit) {
+                disableTaskSystem("আজকের সর্বমোট কাজের সীমা সম্পন্ন হয়েছে।");
+            } else {
+                enableTaskSystem();
+                generateMathCaptcha();
+                setButtonLoading(visitBtn, false, "ওয়েবসাইট ভিজিট করুন");
+            }
+        });
+    }
+
+    // ইউজারের নিজ কাজের সংখ্যা ফেচ
+    function fetchUserCompletedCount() {
+        if (!currentPhone) return;
+        
+        mainDB.ref("users/" + currentPhone + "/completedTasksCount").on("value", (snapshot) => {
+            const count = snapshot.val() || 0;
+            document.getElementById("userCompletedTasks").innerText = count;
+        });
+    }
+
+    // ৩. ক্যাপচা জেনারেট
+    function generateMathCaptcha() {
+        num1 = Math.floor(Math.random() * 6);
+        num2 = Math.floor(Math.random() * 5) + 1;
+        correctAnswer = num1 + num2;
+        document.getElementById("mathQuestion").innerText = `${num1} + ${num2} = ?`;
+        document.getElementById("mathAnswer").value = "";
+    }
+
+    function isAnotherTabActive() {
+        const activeTabTime = localStorage.getItem(TAB_LOCK_KEY);
+        if (activeTabTime) {
+            const timePassed = Date.now() - parseInt(activeTabTime);
+            if (timePassed < (requiredTime * 1000 + 5000)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // ৪. টাস্ক শুরু
+    function startVisitTask() {
+        if (isAnotherTabActive()) {
+            showStatus("আপনি ইতোমধ্যে অন্য ট্যাবে একটি কাজ করছেন! সেটি শেষ করুন।", "danger");
+            return;
+        }
+
+        const rawInput = document.getElementById("mathAnswer").value.trim();
+
+        if (rawInput === "") {
+            showStatus("ক্যাপচা উত্তর প্রদান করুন।", "danger");
+            return;
+        }
+
+        const userAnswer = parseInt(rawInput);
+
+        if (isNaN(userAnswer) || userAnswer !== correctAnswer) {
+            showStatus("ভুল উত্তর! পুনরায় চেষ্টা করুন।", "danger");
+            generateMathCaptcha();
+            return;
+        }
+
+        localStorage.setItem(TAB_LOCK_KEY, Date.now().toString());
+
+        window.open(targetUrl, "_blank");
+
+        document.getElementById("captchaBox").classList.add("hidden");
+        document.getElementById("visitBtn").classList.add("hidden");
+        document.getElementById("timerSection").classList.remove("hidden");
+
+        taskStartTime = Date.now();
+        startTimer(requiredTime);
+    }
+
+    // ৫. ফিক্সড টাইমার লজিক (টাইম শেষ হলেই ভেরিফাই বক্স চলে আসবে)
+    function startTimer(seconds) {
+        let left = seconds;
+        const timerCount = document.getElementById("timerCount");
+        if (timerCount) timerCount.innerText = left;
+
+        if (timerInterval) clearInterval(timerInterval);
+
+        timerInterval = setInterval(() => {
+            left--;
+            if (timerCount) timerCount.innerText = left;
+
+            if (left <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById("timerSection").classList.add("hidden");
+                
+                // ভেরিফাই সেকশন নিশ্চিতভাবে শো করানো
+                const verifySec = document.getElementById("verifySection");
+                if (verifySec) {
+                    verifySec.classList.remove("hidden");
+                }
+            }
+        }, 1000);
+    }
+
+    // ৬. ভেরিফিকেশন ও পয়েন্ট ডিস্ট্রিবিউশন
+    function verifyTaskAndReward() {
+        const verifyBtn = document.getElementById("verifyBtn");
+        const urlInput = document.getElementById("copiedUrlInput");
+        const userCopiedUrl = urlInput.value.trim();
+        const timeSpent = Math.floor((Date.now() - taskStartTime) / 1000);
+
+        if (timeSpent < requiredTime) {
+            showStatus("নির্ধারিত সময় শেষ হওয়ার আগেই চেষ্টা করা হয়েছে।", "danger");
+            resetTaskUI();
+            return;
+        }
+
+        if (!userCopiedUrl || userCopiedUrl === "") {
+            showStatus("লিংক প্রদান করুন। খালি রাখা যাবে না।", "danger");
+            return;
+        }
+
+        if (!isUrlMatching(userCopiedUrl, targetUrl)) {
+            showStatus("ভুল লিঙ্ক দিয়েছেন, সঠিক লিঙ্ক প্রদান করুন।", "danger");
+            return;
+        }
+
+        setButtonLoading(verifyBtn, true, "যাচাই করা হচ্ছে...");
+        urlInput.disabled = true;
+
+        mainDB.ref("users/" + currentPhone + "/points").transaction((points) => {
+            return (points || 0) + rewardPoints;
+        }, (error, committed) => {
+            setButtonLoading(verifyBtn, false, "যাচাই ও পয়েন্ট ক্লেইম করুন");
+            urlInput.disabled = false;
+
+            if (committed) {
+                // ইউজারের কাজের হিসাব ও গ্লোবাল ভিজিট সংখ্যা আপডেট
+                mainDB.ref("users/" + currentPhone + "/completedTasksCount").set(firebase.database.ServerValue.increment(1));
+                webDB.ref("taskSettings/currentVisits").set(firebase.database.ServerValue.increment(1));
+                
+                triggerConfetti();
+                showStatus(`অভিনন্দন! +${rewardPoints} পয়েন্ট যোগ করা হয়েছে।`, "success");
+                resetTaskUI();
+            } else {
+                showStatus("পয়েন্ট আপডেট করতে সমস্যা হয়েছে।", "danger");
+                resetTaskUI();
+            }
+        });
+    }
+
+    function triggerConfetti() {
+        if (typeof confetti === 'function') {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+        }
+    }
+
+    function isUrlMatching(inputUrl, originalUrl) {
+        try {
+            let formattedInput = inputUrl.startsWith('http') ? inputUrl : 'https://' + inputUrl;
+            let formattedOriginal = originalUrl.startsWith('http') ? originalUrl : 'https://' + originalUrl;
+
+            const domain1 = new URL(formattedInput).hostname.replace('www.', '').toLowerCase();
+            const domain2 = new URL(formattedOriginal).hostname.replace('www.', '').toLowerCase();
+
+            return domain1 === domain2;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function resetTaskUI() {
+        localStorage.removeItem(TAB_LOCK_KEY);
+        taskStartTime = 0;
+
+        document.getElementById("captchaBox").classList.remove("hidden");
+        document.getElementById("timerSection").classList.add("hidden");
+        document.getElementById("verifySection").classList.add("hidden");
+        document.getElementById("copiedUrlInput").value = "";
+        generateMathCaptcha();
+
+        const visitBtn = document.getElementById("visitBtn");
+        visitBtn.classList.remove("hidden");
+        visitBtn.disabled = true;
+
+        let cooldown = 5;
+        const cdInterval = setInterval(() => {
+            visitBtn.innerHTML = `<i class="fa-solid fa-clock"></i> অপেক্ষা করুন (${cooldown}s)`;
+            cooldown--;
+            if (cooldown < 0) {
+                clearInterval(cdInterval);
+                visitBtn.disabled = false;
+                visitBtn.innerHTML = '<i class="fa-solid fa-arrow-up-right-from-square"></i> ওয়েবসাইট ভিজিট করুন';
+            }
+        }, 1000);
+    }
+
+    function disableTaskSystem(msg) {
+        document.getElementById("captchaBox").classList.add("hidden");
+        const visitBtn = document.getElementById("visitBtn");
+        visitBtn.disabled = true;
+        visitBtn.innerHTML = '<i class="fa-solid fa-ban"></i> কাজ উপলব্ধ নেই';
+        showStatus(msg, "danger", 0);
+    }
+
+    function enableTaskSystem() {
+        const visitBtn = document.getElementById("visitBtn");
+        visitBtn.disabled = false;
+        visitBtn.innerHTML = '<i class="fa-solid fa-arrow-up-right-from-square"></i> ওয়েবসাইট ভিজিট করুন';
+    }
+
+    function setButtonLoading(buttonElem, isLoading, text) {
+        if (isLoading) {
+            buttonElem.disabled = true;
+            buttonElem.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> ${text}`;
+        } else {
+            buttonElem.disabled = false;
+            buttonElem.innerHTML = text;
+        }
+    }
+
+    function showStatus(msg, type, duration = 3000, elementId = "statusMsg") {
+        const statusMsg = document.getElementById(elementId);
+        const icon = type === "success" ? '<i class="fa-solid fa-circle-check"></i>' : '<i class="fa-solid fa-circle-exclamation"></i>';
+        
+        statusMsg.className = "status-message " + (type === "success" ? "status-success" : "status-danger");
+        statusMsg.innerHTML = `${icon} <span>${msg}</span>`;
+
+        if (statusTimeout) clearTimeout(statusTimeout);
+
+        if (duration > 0) {
+            statusTimeout = setTimeout(() => {
+                statusMsg.className = "status-message";
+                statusMsg.style.display = "none";
+            }, duration);
+        }
+    }
+
+    // অ্যান্টি-ট্যাব সুইচিং চেক
+    document.addEventListener("visibilitychange", function() {
+        if (document.hidden && taskStartTime > 0 && timerInterval) {
+            clearInterval(timerInterval);
+            showStatus("ট্যাব পরিবর্তন করার কারণে আপনার চলতি টাস্কটি বাতিল হয়েছে।", "danger");
+            resetTaskUI();
+        }
+    });
+</script>
+</body>
+</html>
