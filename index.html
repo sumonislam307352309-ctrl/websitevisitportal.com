@@ -4,122 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Website Visit Tasks</title>
-
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
     <style>
-        :root {
-            --primary-color: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg-color: #f1f5f9;
-            --card-bg: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --success-color: #10b981;
-            --danger-color: #ef4444;
-            --border-color: #e2e8f0;
-            --accent-glow: rgba(37, 99, 235, 0.08);
-        }
+        :root { --primary-color: #2563eb; --primary-hover: #1d4ed8; --bg-color: #f1f5f9; --card-bg: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --success-color: #10b981; --danger-color: #ef4444; --border-color: #e2e8f0; --accent-glow: rgba(37, 99, 235, 0.08); }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Hind Siliguri', 'Plus Jakarta Sans', sans-serif; }
-        body {
-            background-color: var(--bg-color);
-            background-image: radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.05) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.05) 0px, transparent 50%);
-            display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px 15px;
-        }
-        .container {
-            width: 100%; max-width: 440px; background: var(--card-bg); border-radius: 20px;
-            box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
-            border: 1px solid rgba(226, 232, 240, 0.8); overflow: hidden;
-        }
-        .header {
-            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-            border-bottom: 1px solid var(--border-color); padding: 24px 20px 20px; text-align: center;
-        }
-        .header .badge {
-            display: inline-flex; align-items: center; gap: 6px; background: #eff6ff; color: var(--primary-color);
-            padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 10px; border: 1px solid #dbeafe;
-        }
+        body { background-color: var(--bg-color); background-image: radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.05) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.05) 0px, transparent 50%); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px 15px; }
+        .container { width: 100%; max-width: 440px; background: var(--card-bg); border-radius: 20px; box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.03); border: 1px solid rgba(226, 232, 240, 0.8); overflow: hidden; }
+        .header { background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-bottom: 1px solid var(--border-color); padding: 24px 20px 20px; text-align: center; }
+        .header .badge { display: inline-flex; align-items: center; gap: 6px; background: #eff6ff; color: var(--primary-color); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 10px; border: 1px solid #dbeafe; }
         .header h2 { font-size: 22px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; justify-content: center; gap: 8px; }
         .header p { font-size: 13.5px; color: var(--text-muted); margin-top: 6px; }
-        .user-bar {
-            display: flex; justify-content: space-between; align-items: center; background: #f8fafc;
-            padding: 12px 16px; border-radius: 12px; margin-bottom: 15px; font-size: 13px; border: 1px solid var(--border-color);
-        }
+        .user-bar { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 12px 16px; border-radius: 12px; margin-bottom: 15px; font-size: 13px; border: 1px solid var(--border-color); }
         .status-pill { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: var(--text-main); }
         .status-dot { width: 8px; height: 8px; background-color: var(--success-color); border-radius: 50%; display: inline-block; box-shadow: 0 0 8px rgba(16, 185, 129, 0.6); }
-        .logout-btn {
-            background: #fff; color: var(--danger-color); border: 1px solid #fecaca; padding: 6px 12px; border-radius: 8px;
-            font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px;
-        }
+        .logout-btn { background: #fff; color: var(--danger-color); border: 1px solid #fecaca; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; }
         .logout-btn:hover { background: var(--danger-color); color: white; border-color: var(--danger-color); }
-        .user-stats-card {
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1.5px solid #e2e8f0; border-radius: 14px;
-            padding: 18px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-        }
+        .user-stats-card { background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 18px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); }
         .stats-box { flex: 1; text-align: center; }
-        .stats-label { display: block; font-size: 12.5px; color: #64748b; font-weight: 600; margin-bottom: 4px; }
+        .stats-label { display: block; font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 4px; }
         .stats-value { font-size: 22px; font-weight: 700; color: #2563eb; }
         .stats-divider { width: 1px; height: 35px; background-color: #cbd5e1; margin: 0 10px; }
+        .remaining-box { background: #ecfdf5; border: 1.5px solid #a7f3d0; border-radius: 12px; padding: 12px 16px; text-align: center; margin-bottom: 18px; font-size: 14px; font-weight: 600; color: #065f46; }
+        .remaining-box span { font-size: 18px; font-weight: 800; color: #059669; }
         .content { padding: 24px 20px; }
         .form-group { margin-bottom: 18px; text-align: left; }
         .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text-main); margin-bottom: 8px; }
         .input-wrapper { position: relative; display: flex; align-items: center; }
         .input-icon { position: absolute; left: 14px; color: #94a3b8; font-size: 15px; }
-        input {
-            width: 100%; padding: 12px 14px 12px 40px; border: 1.5px solid var(--border-color); border-radius: 10px;
-            font-size: 14px; outline: none; background-color: #fff; color: var(--text-main);
-        }
+        input { width: 100%; padding: 12px 14px 12px 40px; border: 1.5px solid var(--border-color); border-radius: 10px; font-size: 14px; outline: none; background-color: #fff; color: var(--text-main); }
         input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 4px var(--accent-glow); }
-        .btn {
-            width: 100%; padding: 13px; background: var(--primary-color); color: white; border: none; border-radius: 10px;
-            font-size: 15px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
-        }
+        .btn { width: 100%; padding: 13px; background: var(--primary-color); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15); }
         .btn:hover { background: var(--primary-hover); }
         .btn:disabled { opacity: 0.65; cursor: not-allowed; box-shadow: none; }
         .btn-success { background: var(--success-color); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15); }
         .btn-success:hover { background: #059669; }
-        .captcha-card {
-            background: #f8fafc; border: 1.5px dashed #cbd5e1; padding: 18px; border-radius: 12px; text-align: center; margin-bottom: 20px;
-        }
+        .captcha-card { background: #f8fafc; border: 1.5px dashed #cbd5e1; padding: 18px; border-radius: 12px; text-align: center; margin-bottom: 20px; }
         .captcha-title { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 5px; }
-        .captcha-math {
-            font-size: 26px; font-weight: 700; color: var(--text-main); margin-bottom: 12px; letter-spacing: 1px;
-            background: #ffffff; display: inline-block; padding: 4px 20px; border-radius: 8px; border: 1px solid var(--border-color);
-        }
+        .captcha-math { font-size: 26px; font-weight: 700; color: var(--text-main); margin-bottom: 12px; letter-spacing: 1px; background: #ffffff; display: inline-block; padding: 4px 20px; border-radius: 8px; border: 1px solid var(--border-color); }
         .captcha-card input { padding-left: 14px; text-align: center; }
-        .timer-badge {
-            display: inline-flex; align-items: center; gap: 8px; background: #eff6ff; color: var(--primary-color);
-            border: 1px solid #bfdbfe; padding: 12px 24px; border-radius: 50px; font-weight: 600; font-size: 15px; margin: 15px 0;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.2); }
-            70% { box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
-        }
-        .status-message {
-            margin-top: 18px; padding: 12px 14px; border-radius: 10px; font-size: 13.5px; font-weight: 600;
-            text-align: center; display: none; align-items: center; justify-content: center; gap: 8px;
-        }
+        .timer-badge { display: inline-flex; align-items: center; gap: 8px; background: #eff6ff; color: var(--primary-color); border: 1px solid #bfdbfe; padding: 12px 24px; border-radius: 50px; font-weight: 600; font-size: 15px; margin: 15px 0; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.2); } 70% { box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); } 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); } }
+        .status-message { margin-top: 18px; padding: 12px 14px; border-radius: 10px; font-size: 13.5px; font-weight: 600; text-align: center; display: none; align-items: center; justify-content: center; gap: 8px; }
         .status-success { display: flex !important; background-color: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
         .status-danger { display: flex !important; background-color: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
         .footer-note { text-align: center; font-size: 11.5px; color: #94a3b8; margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 4px; }
         .hidden { display: none !important; }
-        .instruction-box {
-            background: #fffbeb; border: 1px solid #fde68a; color: #92400e; padding: 12px 14px; border-radius: 10px;
-            font-size: 13px; margin-bottom: 15px; line-height: 1.5;
-        }
+        .instruction-box { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; padding: 12px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 15px; line-height: 1.5; }
         .loading-overlay { text-align: center; padding: 30px 10px; }
         .loading-spinner { font-size: 32px; color: var(--primary-color); margin-bottom: 12px; }
     </style>
 </head>
 <body>
+
+<!-- Country Block Screen -->
+<div id="countryBlockScreen" style="display:none; position:fixed; inset:0; background:#0f172a; z-index:9999; color:#fff; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center;">
+  <div style="font-size:48px; margin-bottom:12px;" id="countryBlockIcon">🔴</div>
+  <div style="font-size:18px; font-weight:700; margin-bottom:12px;" id="countryBlockTitle">এই দেশ থেকে কাজ করা যাবে না</div>
+  <div style="background:rgba(255,255,255,0.08); border-radius:14px; padding:16px; max-width:340px; width:100%; margin-bottom:16px;">
+    <div style="font-size:13px; color:#94a3b8; margin-bottom:8px;">অনুমোদিত দেশসমূহ:</div>
+    <div id="allowedCountriesList" style="font-size:14px; line-height:1.6;"></div>
+  </div>
+  <div style="font-size:14px; margin-bottom:6px;">আপনার দেশ: <strong id="userCountryDisplay">—</strong></div>
+  <div id="countryCheckStatus" style="font-size:13px; color:#94a3b8; min-height:20px; margin-bottom:8px;"></div>
+  <button id="countryRetryBtn" onclick="retryCountryCheck()" style="margin-top:12px; background:#2563eb; color:#fff; border:none; padding:12px 24px; border-radius:10px; font-weight:600; cursor:pointer; min-width:180px;">🔄 আবার চেষ্টা করুন</button>
+</div>
 
 <div class="container">
     <div class="header">
@@ -127,9 +79,7 @@
         <h2><i class="fa-solid fa-globe" style="color: var(--primary-color);"></i> Web Visit Portal</h2>
         <p>সহজে ওয়েবসাইট ভিউ সম্পন্ন করুন এবং পয়েন্ট জমা করুন</p>
     </div>
-
     <div class="content">
-        <!-- Login -->
         <div id="loginSection">
             <div class="form-group">
                 <label for="userPhone">মোবাইল নম্বর</label>
@@ -138,23 +88,14 @@
                     <input type="tel" id="userPhone" placeholder="01XXXXXXXXX" maxlength="11">
                 </div>
             </div>
-            <button id="loginBtn" class="btn" onclick="loginUser()">
-                <span>লগইন করুন</span> <i class="fa-solid fa-arrow-right-to-bracket"></i>
-            </button>
+            <button id="loginBtn" class="btn" onclick="loginUser()"><span>লগইন করুন</span> <i class="fa-solid fa-arrow-right-to-bracket"></i></button>
             <div id="loginStatusMsg" class="status-message"></div>
         </div>
-
-        <!-- Task Dashboard -->
         <div id="taskSection" class="hidden">
             <div class="user-bar">
-                <span class="status-pill">
-                    স্ট্যাটাস: <span class="status-dot"></span> <strong style="color: var(--success-color);">Active</strong>
-                </span>
-                <button class="logout-btn" onclick="logoutUser()">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i> লগআউট
-                </button>
+                <span class="status-pill">স্ট্যাটাস: <span class="status-dot"></span> <strong style="color: var(--success-color);">Active</strong></span>
+                <button class="logout-btn" onclick="logoutUser()"><i class="fa-solid fa-arrow-right-from-bracket"></i> লগআউট</button>
             </div>
-
             <div class="user-stats-card">
                 <div class="stats-box">
                     <span class="stats-label"><i class="fa-solid fa-list-check"></i> মোট নির্ধারিত কাজ</span>
@@ -166,91 +107,308 @@
                     <span class="stats-value" id="userCompletedTasks">0</span>
                 </div>
             </div>
-
-            <!-- Captcha -->
+            <div class="remaining-box" id="remainingBox">বাকি আছে <span id="remainingCount">0</span> টা কাজ</div>
             <div id="captchaBox" class="captcha-card">
                 <div class="captcha-title"><i class="fa-solid fa-lock"></i> নিরাপত্তা যাচাইকরণের জন্য উত্তর দিন:</div>
                 <div class="captcha-math" id="mathQuestion">0 + 0 = ?</div>
-                <div class="input-wrapper">
-                    <input type="number" id="mathAnswer" placeholder="সঠিক উত্তরটি লিখুন">
-                </div>
+                <div class="input-wrapper"><input type="number" id="mathAnswer" placeholder="সঠিক উত্তরটি লিখুন"></div>
             </div>
-
-            <!-- 3s Loading -->
             <div id="loadingSection" class="hidden loading-overlay">
                 <div class="loading-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i></div>
                 <p style="font-weight:600; color:var(--text-main);">ওয়েবসাইট খোলা হচ্ছে...</p>
                 <p style="font-size:13px; color:var(--text-muted); margin-top:6px;">অনুগ্রহ করে অপেক্ষা করুন</p>
             </div>
-
-            <button id="visitBtn" class="btn" onclick="startVisitTask()">
-                <i class="fa-solid fa-arrow-up-right-from-square"></i> ওয়েবসাইট ভিজিট করুন
-            </button>
-
-            <!-- Timer -->
+            <button id="visitBtn" class="btn" onclick="startVisitTask()"><i class="fa-solid fa-arrow-up-right-from-square"></i> ওয়েবসাইট ভিজিট করুন</button>
             <div id="timerSection" class="hidden" style="text-align: center;">
-                <div class="instruction-box">
-                    <i class="fa-solid fa-info-circle"></i>
-                    নতুন ট্যাবে ওয়েবসাইট খোলা হয়েছে। সেখানে <strong>থাকুন</strong> এবং টাইমার শেষ হওয়া পর্যন্ত অপেক্ষা করুন। তারপর এখানে ফিরে এসে ভেরিফিকেশন কোড দিন।
-                </div>
-                <div class="timer-badge">
-                    <i class="fa-solid fa-stopwatch"></i> অপেক্ষা করুন: <span id="timerCount">0</span> সেকেন্ড
-                </div>
+                <div class="instruction-box"><i class="fa-solid fa-info-circle"></i> নতুন ট্যাবে ওয়েবসাইট খোলা হয়েছে। সেখানে <strong>থাকুন</strong> এবং টাইমার শেষ হওয়া পর্যন্ত অপেক্ষা করুন। তারপর এখানে ফিরে এসে ভেরিফিকেশন কোড দিন।</div>
+                <div class="timer-badge"><i class="fa-solid fa-stopwatch"></i> অপেক্ষা করুন: <span id="timerCount">0</span> সেকেন্ড</div>
             </div>
-
-            <!-- Verify with Code (no URL paste) -->
             <div id="verifySection" class="hidden" style="margin-top: 15px;">
                 <div class="form-group">
                     <label for="verifyCodeInput">ভেরিফিকেশন কোড / নাম্বার দিন:</label>
-                    <div class="input-wrapper">
-                        <i class="fa-solid fa-key input-icon"></i>
-                        <input type="text" id="verifyCodeInput" placeholder="অ্যাডমিন যে কোড দিয়েছে সেটি লিখুন" autocomplete="off">
-                    </div>
+                    <div class="input-wrapper"><i class="fa-solid fa-key input-icon"></i><input type="text" id="verifyCodeInput" placeholder="অ্যাডমিন যে কোড দিয়েছে সেটি লিখুন" autocomplete="off"></div>
                 </div>
-                <button id="verifyBtn" class="btn btn-success" onclick="verifyTaskAndReward()">
-                    <i class="fa-solid fa-circle-check"></i> যাচাই ও পয়েন্ট ক্লেইম করুন
-                </button>
+                <button id="verifyBtn" class="btn btn-success" onclick="verifyTaskAndReward()"><i class="fa-solid fa-circle-check"></i> যাচাই ও পয়েন্ট ক্লেইম করুন</button>
             </div>
-
             <div id="statusMsg" class="status-message"></div>
         </div>
-
-        <div class="footer-note">
-            <i class="fa-solid fa-lock"></i> Secure Encrypted Verification System
-        </div>
+        <div class="footer-note"><i class="fa-solid fa-lock"></i> Secure Encrypted Verification System</div>
     </div>
 </div>
-
 <script>
     const mainAppConfig = { databaseURL: "https://smart-earn-official-default-rtdb.firebaseio.com/" };
     const webControlConfig = { databaseURL: "https://website-43df2-default-rtdb.firebaseio.com/" };
-
     const mainApp = firebase.initializeApp(mainAppConfig, "mainApp");
     const webControlApp = firebase.initializeApp(webControlConfig, "webControlApp");
     const mainDB = mainApp.database();
     const webDB = webControlApp.database();
 
-    let currentPhone = "";
-    let targetUrl = "";
-    let requiredTime = 0;
-    let rewardPoints = 0;
-    let totalLimit = 0;
-    let currentVisits = 0;
-    let verifyCode = "";          // অ্যাডমিন সেট করা কোড
-
-    let num1 = 0, num2 = 0, correctAnswer = 0;
-    let taskStartTime = 0;
-    let timerInterval = null;
-    let statusTimeout = null;
-    let isTimerFinished = false;
-    let activeUserHeartbeat = null;
-
+    let currentPhone = "", targetUrl = "", requiredTime = 0, rewardPoints = 0, totalLimit = 0, currentVisits = 0, verifyCode = "";
+    let num1 = 0, num2 = 0, correctAnswer = 0, taskStartTime = 0, timerInterval = null, statusTimeout = null, isTimerFinished = false, activeUserHeartbeat = null;
     const TAB_LOCK_KEY = 'active_task_tab_timestamp';
 
-    window.onload = function() {
+    // ===== Country Restriction + Network Check =====
+    let userCountryCode = '';
+    let allowedCountries = ['ALL'];
+    let isCountryChecking = false;
+
+    const COUNTRY_NAMES = {
+        ALL: 'সব দেশ', BD: 'বাংলাদেশ', IN: 'ভারত', PK: 'পাকিস্তান', US: 'যুক্তরাষ্ট্র',
+        GB: 'যুক্তরাজ্য', CA: 'কানাডা', AU: 'অস্ট্রেলিয়া', AE: 'সংযুক্ত আরব আমিরাত',
+        SA: 'সৌদি আরব', MY: 'মালয়েশিয়া', ID: 'ইন্দোনেশিয়া', TH: 'থাইল্যান্ড',
+        PH: 'ফিলিপাইন', SG: 'সিঙ্গাপুর', NP: 'নেপাল', LK: 'শ্রীলঙ্কা', MM: 'মিয়ানমার'
+    };
+
+    // 12+ free IP Geo APIs (fallback chain)
+    const GEO_APIS = [
+        { url: 'https://ipapi.co/json/', parse: d => (d.country_code || d.country || '').toUpperCase() },
+        { url: 'https://ipinfo.io/json', parse: d => (d.country || '').toUpperCase() },
+        { url: 'https://ip-api.com/json/?fields=status,countryCode', parse: d => d.status === 'success' ? (d.countryCode || '').toUpperCase() : '' },
+        { url: 'https://freeipapi.com/api/json', parse: d => (d.countryCode || '').toUpperCase() },
+        { url: 'https://ipwho.is/', parse: d => d.success !== false ? (d.country_code || '').toUpperCase() : '' },
+        { url: 'https://get.geojs.io/v1/ip/country.json', parse: d => (d.country || d.country_code || '').toUpperCase() },
+        { url: 'https://api.country.is/', parse: d => (d.country || '').toUpperCase() },
+        { url: 'https://ipapi.is/json/', parse: d => (d.location && d.location.country_code) ? d.location.country_code.toUpperCase() : (d.country_code || '').toUpperCase() },
+        { url: 'https://api.ip.sb/geoip', parse: d => (d.country_code || d.countryCode || '').toUpperCase() },
+        { url: 'https://ipwhoami.com/json', parse: d => (d.country_code || d.country || '').toUpperCase() },
+        { url: 'https://api.ipbase.com/v1/json/', parse: d => (d.country_code || '').toUpperCase() },
+        { url: 'https://ipapi.com/ip_api.php?ip=', parse: d => (d.country_code || d.countryCode || '').toUpperCase() }
+    ];
+
+    async function hasRealInternet() {
+        const endpoints = [
+            'https://www.cloudflare.com/cdn-cgi/trace',
+            'https://api.ipify.org?format=json',
+            'https://httpbin.org/status/200',
+            'https://1.1.1.1/cdn-cgi/trace'
+        ];
+        for (const url of endpoints) {
+            try {
+                const controller = new AbortController();
+                const t = setTimeout(() => controller.abort(), 4000);
+                const r = await fetch(url, { method: 'GET', cache: 'no-store', mode: 'cors', signal: controller.signal });
+                clearTimeout(t);
+                if (r.ok || r.status === 204 || r.status === 200) return true;
+            } catch (e) {}
+        }
+        return false;
+    }
+
+    async function fetchWithTimeout(url, ms = 5000) {
+        const controller = new AbortController();
+        const t = setTimeout(() => controller.abort(), ms);
+        try {
+            const r = await fetch(url, { method: 'GET', cache: 'no-store', mode: 'cors', signal: controller.signal });
+            clearTimeout(t);
+            if (!r.ok) return null;
+            return await r.json();
+        } catch (e) {
+            clearTimeout(t);
+            return null;
+        }
+    }
+
+    async function detectUserCountry() {
+        userCountryCode = '';
+        for (let i = 0; i < GEO_APIS.length; i++) {
+            const api = GEO_APIS[i];
+            try {
+                const data = await fetchWithTimeout(api.url, 4500);
+                if (!data) continue;
+                const code = api.parse(data);
+                if (code && /^[A-Z]{2}$/.test(code)) {
+                    userCountryCode = code;
+                    return userCountryCode;
+                }
+            } catch (e) {}
+        }
+        // Cloudflare trace fallback (text)
+        try {
+            const controller = new AbortController();
+            const t = setTimeout(() => controller.abort(), 4000);
+            const r = await fetch('https://www.cloudflare.com/cdn-cgi/trace', { cache: 'no-store', signal: controller.signal });
+            clearTimeout(t);
+            const text = await r.text();
+            const match = text.match(/loc=([A-Z]{2})/i);
+            if (match) {
+                userCountryCode = match[1].toUpperCase();
+                return userCountryCode;
+            }
+        } catch (e) {}
+        return '';
+    }
+
+    function showCountryBlock(allowed, userCode, extraMsg) {
+        const screen = document.getElementById('countryBlockScreen');
+        const listEl = document.getElementById('allowedCountriesList');
+        const userEl = document.getElementById('userCountryDisplay');
+        const statusEl = document.getElementById('countryCheckStatus');
+        const titleEl = document.getElementById('countryBlockTitle');
+        const iconEl = document.getElementById('countryBlockIcon');
+        if (!screen) return;
+
+        if (listEl) {
+            listEl.innerHTML = (allowed || []).map(c => COUNTRY_NAMES[c] || c).join('<br>') || 'কোনো দেশ নেই';
+        }
+        if (userEl) userEl.innerText = COUNTRY_NAMES[userCode] || userCode || 'অজানা';
+        if (titleEl) titleEl.innerText = 'এই দেশ থেকে কাজ করা যাবে না';
+        if (iconEl) iconEl.innerText = '🔴';
+        if (statusEl) statusEl.innerText = extraMsg || '';
+        const btn = document.getElementById('countryRetryBtn');
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '🔄 আবার চেষ্টা করুন';
+        }
+        screen.style.display = 'flex';
+        const cont = document.querySelector('.container');
+        if (cont) cont.style.display = 'none';
+    }
+
+    function hideCountryBlock() {
+        const screen = document.getElementById('countryBlockScreen');
+        if (screen) screen.style.display = 'none';
+        const cont = document.querySelector('.container');
+        if (cont) cont.style.display = '';
+    }
+
+    function isCountryAllowed() {
+        if (!allowedCountries || allowedCountries.length === 0) return false;
+        if (allowedCountries.includes('ALL')) return true;
+        if (!userCountryCode) return false;
+        return allowedCountries.includes(userCountryCode);
+    }
+
+    async function runFullCountryCheck(silent) {
+        if (isCountryChecking) return false;
+        isCountryChecking = true;
+        const statusEl = document.getElementById('countryCheckStatus');
+        const btn = document.getElementById('countryRetryBtn');
+        const titleEl = document.getElementById('countryBlockTitle');
+        const iconEl = document.getElementById('countryBlockIcon');
+
+        if (!silent) {
+            if (btn) { btn.disabled = true; btn.innerHTML = '⏳ লোডিং হচ্ছে...'; }
+            if (statusEl) statusEl.innerText = 'অপেক্ষা করুন...';
+            if (titleEl) titleEl.innerText = 'যাচাই করা হচ্ছে...';
+            if (iconEl) iconEl.innerText = '⏳';
+        }
+
+        // 1. Network check (always silent for user)
+        const netOk = await hasRealInternet();
+        if (!netOk) {
+            if (!silent) {
+                if (statusEl) statusEl.innerText = 'ইন্টারনেট সংযোগ নেই। নেট চেক করুন।';
+                if (titleEl) titleEl.innerText = 'নেটওয়ার্ক সমস্যা';
+                if (iconEl) iconEl.innerText = '📡';
+                if (btn) { btn.disabled = false; btn.innerHTML = '🔄 আবার চেষ্টা করুন'; }
+                const screen = document.getElementById('countryBlockScreen');
+                if (screen) {
+                    screen.style.display = 'flex';
+                    const cont = document.querySelector('.container');
+                    if (cont) cont.style.display = 'none';
+                }
+            }
+            isCountryChecking = false;
+            return false;
+        }
+
+        // 2. Country detect
+        await detectUserCountry();
+
+        if (!userCountryCode) {
+            if (!silent) {
+                if (statusEl) statusEl.innerText = 'লোকেশন পাওয়া যায়নি। আবার চেষ্টা করুন।';
+                if (titleEl) titleEl.innerText = 'যাচাই ব্যর্থ';
+                if (iconEl) iconEl.innerText = '🌍';
+                if (btn) { btn.disabled = false; btn.innerHTML = '🔄 আবার চেষ্টা করুন'; }
+                showCountryBlock(allowedCountries, '', 'লোকেশন পাওয়া যায়নি');
+            }
+            isCountryChecking = false;
+            return false;
+        }
+
+        // 3. Allowed check
+        if (isCountryAllowed()) {
+            if (!silent) {
+                if (statusEl) statusEl.innerText = '';
+                if (titleEl) titleEl.innerText = 'সফল!';
+                if (iconEl) iconEl.innerText = '✅';
+                setTimeout(() => {
+                    hideCountryBlock();
+                    isCountryChecking = false;
+                }, 400);
+            } else {
+                hideCountryBlock();
+                isCountryChecking = false;
+            }
+            return true;
+        } else {
+            if (!silent) {
+                if (statusEl) statusEl.innerText = '';
+                if (titleEl) titleEl.innerText = 'এই দেশ থেকে কাজ করা যাবে না';
+                if (iconEl) iconEl.innerText = '🔴';
+                if (btn) { btn.disabled = false; btn.innerHTML = '🔄 আবার চেষ্টা করুন'; }
+                showCountryBlock(allowedCountries, userCountryCode);
+            } else {
+                // silent background: only show block if not allowed
+                showCountryBlock(allowedCountries, userCountryCode);
+            }
+            isCountryChecking = false;
+            return false;
+        }
+    }
+
+    async function retryCountryCheck() {
+        await runFullCountryCheck(false);
+    }
+
+    // Background check every 5s — user sees nothing
+    let bgCheckTimer = null;
+    let countryAlreadyPassed = false;
+    function startBackgroundChecks() {
+        if (bgCheckTimer) return;
+        bgCheckTimer = setInterval(async () => {
+            if (isCountryChecking) return;
+            if (allowedCountries.includes('ALL')) {
+                countryAlreadyPassed = true;
+                return;
+            }
+            try {
+                const netOk = await hasRealInternet();
+                if (!netOk) return;
+                await detectUserCountry();
+                if (userCountryCode && isCountryAllowed()) {
+                    countryAlreadyPassed = true;
+                    hideCountryBlock();
+                } else if (userCountryCode && !isCountryAllowed()) {
+                    countryAlreadyPassed = false;
+                    showCountryBlock(allowedCountries, userCountryCode);
+                }
+            } catch (e) {}
+        }, 5000);
+    }
+    // ===== End Country =====
+
+    function checkDailyReset() {
+        if (!currentPhone) return;
+        const today = new Date().toDateString();
+        const lastReset = localStorage.getItem("last_reset_date_" + currentPhone);
+        if (lastReset !== today) {
+            localStorage.setItem("completed_count_" + currentPhone, "0");
+            localStorage.setItem("last_reset_date_" + currentPhone, today);
+            const el = document.getElementById("userCompletedTasks");
+            if (el) el.innerText = "0";
+            mainDB.ref("users/" + currentPhone + "/completedTasksCount").set(0);
+        }
+    }
+
+    window.onload = async function() {
+        // light pre-detect (non-blocking for login)
+        detectUserCountry().catch(() => {});
         const savedPhone = localStorage.getItem("user_phone");
         if (savedPhone) {
             currentPhone = savedPhone;
+            checkDailyReset();
             showDashboard();
             registerActiveUser();
         }
@@ -260,19 +418,14 @@
         const phoneInput = document.getElementById("userPhone");
         const loginBtn = document.getElementById("loginBtn");
         const phone = phoneInput.value.trim();
-
-        if (phone.length < 11) {
-            showStatus("সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন।", "danger", 3000, "loginStatusMsg");
-            return;
-        }
-
+        if (phone.length < 11) { showStatus("সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন।", "danger", 3000, "loginStatusMsg"); return; }
         setButtonLoading(loginBtn, true, "লগইন হচ্ছে...");
         phoneInput.disabled = true;
-
         mainDB.ref("users/" + phone).once("value", (snapshot) => {
             if (snapshot.exists()) {
                 currentPhone = phone;
                 localStorage.setItem("user_phone", currentPhone);
+                checkDailyReset();
                 registerActiveUser();
                 showDashboard();
             } else {
@@ -289,15 +442,9 @@
 
     function registerActiveUser() {
         if (!currentPhone) return;
-        webDB.ref("activeUsers/" + currentPhone).set({
-            phone: currentPhone,
-            lastActive: firebase.database.ServerValue.TIMESTAMP,
-            status: "online"
-        });
+        webDB.ref("activeUsers/" + currentPhone).set({ phone: currentPhone, lastActive: firebase.database.ServerValue.TIMESTAMP, status: "online" });
         if (activeUserHeartbeat) clearInterval(activeUserHeartbeat);
-        activeUserHeartbeat = setInterval(() => {
-            webDB.ref("activeUsers/" + currentPhone + "/lastActive").set(firebase.database.ServerValue.TIMESTAMP);
-        }, 30000);
+        activeUserHeartbeat = setInterval(() => { webDB.ref("activeUsers/" + currentPhone + "/lastActive").set(firebase.database.ServerValue.TIMESTAMP); }, 30000);
     }
 
     function removeActiveUser() {
@@ -308,8 +455,7 @@
     function showDashboard() {
         document.getElementById("loginSection").classList.add("hidden");
         document.getElementById("taskSection").classList.remove("hidden");
-        const visitBtn = document.getElementById("visitBtn");
-        setButtonLoading(visitBtn, true, "তথ্য লোড হচ্ছে...");
+        setButtonLoading(document.getElementById("visitBtn"), true, "তথ্য লোড হচ্ছে...");
         listenToAdminSettings();
         fetchUserCompletedCount();
     }
@@ -323,16 +469,14 @@
 
     function listenToAdminSettings() {
         const visitBtn = document.getElementById("visitBtn");
-
         webDB.ref("taskSettings").on("value", (snapshot) => {
             const data = snapshot.val();
-
             if (!data || !data.url || !data.verifyCode) {
                 disableTaskSystem("বর্তমানে কোনো কাজ উপলব্ধ নেই। অ্যাডমিন সেটিংস সেট করেনি।");
                 document.getElementById("adminTotalTasks").innerText = "0";
+                document.getElementById("remainingCount").innerText = "0";
                 return;
             }
-
             targetUrl = (data.url || "").trim();
             requiredTime = parseInt(data.time) || 0;
             rewardPoints = parseInt(data.points) || 0;
@@ -340,8 +484,26 @@
             currentVisits = parseInt(data.currentVisits) || 0;
             verifyCode = String(data.verifyCode || "").trim();
 
-            document.getElementById("adminTotalTasks").innerText = totalLimit;
+            // Country check — silent. User sees nothing unless blocked.
+            const newAllowed = Array.isArray(data.allowedCountries) ? data.allowedCountries : ['ALL'];
+            const allowedChanged = JSON.stringify(newAllowed) !== JSON.stringify(allowedCountries);
+            allowedCountries = newAllowed;
 
+            if (allowedCountries.includes('ALL')) {
+                countryAlreadyPassed = true;
+                hideCountryBlock();
+                startBackgroundChecks();
+            } else if (!countryAlreadyPassed || allowedChanged) {
+                (async () => {
+                    const ok = await runFullCountryCheck(true); // true = silent
+                    if (ok) countryAlreadyPassed = true;
+                    startBackgroundChecks();
+                })();
+            }
+
+            document.getElementById("adminTotalTasks").innerText = totalLimit;
+            const remaining = Math.max(0, totalLimit - currentVisits);
+            document.getElementById("remainingCount").innerText = remaining;
             if (!targetUrl || !verifyCode) {
                 disableTaskSystem("বর্তমানে কাজ বন্ধ রয়েছে।");
             } else if (totalLimit <= 0 || currentVisits >= totalLimit) {
@@ -356,16 +518,15 @@
 
     function fetchUserCompletedCount() {
         if (!currentPhone) return;
-
-        // localStorage থেকে তাৎক্ষণিক দেখাও
         const localCount = parseInt(localStorage.getItem("completed_count_" + currentPhone)) || 0;
         document.getElementById("userCompletedTasks").innerText = localCount;
-
-        // Firebase থেকে সিঙ্ক
         mainDB.ref("users/" + currentPhone + "/completedTasksCount").on("value", (snapshot) => {
-            const count = snapshot.val() || 0;
-            document.getElementById("userCompletedTasks").innerText = count;
-            localStorage.setItem("completed_count_" + currentPhone, count);
+            const dbCount = snapshot.val() || 0;
+            const currentShown = parseInt(document.getElementById("userCompletedTasks").innerText) || 0;
+            const localStored = parseInt(localStorage.getItem("completed_count_" + currentPhone)) || 0;
+            const finalCount = Math.max(dbCount, currentShown, localStored);
+            document.getElementById("userCompletedTasks").innerText = finalCount;
+            localStorage.setItem("completed_count_" + currentPhone, finalCount);
         });
     }
 
@@ -373,7 +534,7 @@
         num1 = Math.floor(Math.random() * 6);
         num2 = Math.floor(Math.random() * 5) + 1;
         correctAnswer = num1 + num2;
-        document.getElementById("mathQuestion").innerText = `${num1} + ${num2} = ?`;
+        document.getElementById("mathQuestion").innerText = num1 + " + " + num2 + " = ?";
         document.getElementById("mathAnswer").value = "";
     }
 
@@ -387,29 +548,26 @@
     }
 
     function startVisitTask() {
+        if (totalLimit <= 0 || currentVisits >= totalLimit) {
+            showStatus("কাজের সীমা শেষ হয়ে গেছে। আর কাজ করা যাবে না।", "danger");
+            return;
+        }
         if (isAnotherTabActive()) {
             showStatus("আপনি ইতোমধ্যে অন্য ট্যাবে একটি কাজ করছেন! সেটি শেষ করুন।", "danger");
             return;
         }
-
         const rawInput = document.getElementById("mathAnswer").value.trim();
-        if (rawInput === "") {
-            showStatus("ক্যাপচা উত্তর প্রদান করুন।", "danger");
-            return;
-        }
+        if (rawInput === "") { showStatus("ক্যাপচা উত্তর প্রদান করুন।", "danger"); return; }
         const userAnswer = parseInt(rawInput);
         if (isNaN(userAnswer) || userAnswer !== correctAnswer) {
             showStatus("ভুল উত্তর! পুনরায় চেষ্টা করুন।", "danger");
             generateMathCaptcha();
             return;
         }
-
-        // ৩ সেকেন্ড লোডিং
         document.getElementById("captchaBox").classList.add("hidden");
         document.getElementById("visitBtn").classList.add("hidden");
         document.getElementById("loadingSection").classList.remove("hidden");
         localStorage.setItem(TAB_LOCK_KEY, Date.now().toString());
-
         setTimeout(() => {
             document.getElementById("loadingSection").classList.add("hidden");
             window.open(targetUrl, "_blank");
@@ -426,7 +584,6 @@
         const timerCount = document.getElementById("timerCount");
         if (timerCount) timerCount.innerText = left;
         if (timerInterval) clearInterval(timerInterval);
-
         timerInterval = setInterval(() => {
             left--;
             if (timerCount) timerCount.innerText = left;
@@ -436,68 +593,66 @@
                 isTimerFinished = true;
                 document.getElementById("timerSection").classList.add("hidden");
                 const verifySec = document.getElementById("verifySection");
-                if (verifySec) {
-                    verifySec.classList.remove("hidden");
-                    verifySec.style.display = "block";
-                }
+                if (verifySec) { verifySec.classList.remove("hidden"); verifySec.style.display = "block"; }
             }
         }, 1000);
+    }
+
+    function playSuccessSound() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = ctx.createOscillator();
+            const gain = ctx.createGain();
+            oscillator.connect(gain);
+            gain.connect(ctx.destination);
+            oscillator.frequency.value = 800;
+            oscillator.type = "sine";
+            gain.gain.setValueAtTime(0.3, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+            oscillator.start(ctx.currentTime);
+            oscillator.stop(ctx.currentTime + 0.5);
+            setTimeout(() => {
+                const osc2 = ctx.createOscillator();
+                const gain2 = ctx.createGain();
+                osc2.connect(gain2);
+                gain2.connect(ctx.destination);
+                osc2.frequency.value = 1200;
+                osc2.type = "sine";
+                gain2.gain.setValueAtTime(0.25, ctx.currentTime);
+                gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+                osc2.start(ctx.currentTime);
+                osc2.stop(ctx.currentTime + 0.4);
+            }, 150);
+        } catch (e) {}
     }
 
     function verifyTaskAndReward() {
         const verifyBtn = document.getElementById("verifyBtn");
         const codeInput = document.getElementById("verifyCodeInput");
         const userCode = codeInput.value.trim();
-
-        if (!userCode) {
-            showStatus("ভেরিফিকেশন কোড দিন।", "danger");
-            return;
-        }
-
-        if (userCode !== verifyCode) {
-            showStatus("ভুল কোড! সঠিক ভেরিফিকেশন কোড দিন।", "danger");
-            return;
-        }
-
-        // লিমিট চেক (আবার)
-        if (currentVisits >= totalLimit) {
-            showStatus("কাজের সীমা শেষ হয়ে গেছে।", "danger");
-            return;
-        }
-
+        if (!userCode) { showStatus("ভেরিফিকেশন কোড দিন।", "danger"); return; }
+        if (userCode !== verifyCode) { showStatus("ভুল কোড! সঠিক ভেরিফিকেশন কোড দিন।", "danger"); return; }
+        if (currentVisits >= totalLimit) { showStatus("কাজের সীমা শেষ হয়ে গেছে।", "danger"); return; }
         setButtonLoading(verifyBtn, true, "যাচাই করা হচ্ছে...");
         codeInput.disabled = true;
-
-        // পয়েন্ট যোগ
         mainDB.ref("users/" + currentPhone + "/points").transaction((points) => {
             return (points || 0) + rewardPoints;
         }, (error, committed) => {
             setButtonLoading(verifyBtn, false, "যাচাই ও পয়েন্ট ক্লেইম করুন");
             codeInput.disabled = false;
-
             if (committed) {
-                // === UI + localStorage সাথে সাথে বাড়াও ===
                 const countEl = document.getElementById("userCompletedTasks");
                 let currentShown = parseInt(countEl.innerText) || 0;
                 const newCount = currentShown + 1;
                 countEl.innerText = newCount;
                 localStorage.setItem("completed_count_" + currentPhone, newCount);
-
-                // Main DB
                 mainDB.ref("users/" + currentPhone + "/completedTasksCount").transaction((c) => (c || 0) + 1);
-
-                // Admin-এর জন্য স্ট্যাটস
-                webDB.ref("userStats/" + currentPhone).set({
-                    phone: currentPhone,
-                    completed: newCount,
-                    lastCompleted: firebase.database.ServerValue.TIMESTAMP
-                });
-
-                // ভিজিট কাউন্ট বাড়াও
+                webDB.ref("userStats/" + currentPhone).set({ phone: currentPhone, completed: newCount, lastCompleted: firebase.database.ServerValue.TIMESTAMP });
+                webDB.ref("claimHistory").push({ phone: currentPhone, points: rewardPoints, time: firebase.database.ServerValue.TIMESTAMP });
                 webDB.ref("taskSettings/currentVisits").transaction((v) => (v || 0) + 1);
-
+                playSuccessSound();
                 triggerConfetti();
-                showStatus(`অভিনন্দন! +${rewardPoints} পয়েন্ট যোগ করা হয়েছে।`, "success");
+                showStatus("অভিনন্দন! +" + rewardPoints + " পয়েন্ট যোগ করা হয়েছে।", "success");
                 resetTaskUI();
             } else {
                 showStatus("পয়েন্ট আপডেট করতে সমস্যা হয়েছে।", "danger");
@@ -508,7 +663,11 @@
 
     function triggerConfetti() {
         if (typeof confetti === 'function') {
-            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+            setTimeout(() => {
+                confetti({ particleCount: 60, angle: 60, spread: 55, origin: { x: 0 } });
+                confetti({ particleCount: 60, angle: 120, spread: 55, origin: { x: 1 } });
+            }, 200);
         }
     }
 
@@ -517,26 +676,20 @@
         localStorage.removeItem(TAB_LOCK_KEY);
         taskStartTime = 0;
         isTimerFinished = false;
-
         document.getElementById("captchaBox").classList.remove("hidden");
         document.getElementById("timerSection").classList.add("hidden");
         document.getElementById("loadingSection").classList.add("hidden");
-
         const verifySec = document.getElementById("verifySection");
         verifySec.classList.add("hidden");
         verifySec.style.display = "";
-
         document.getElementById("verifyCodeInput").value = "";
         generateMathCaptcha();
-
         const visitBtn = document.getElementById("visitBtn");
         visitBtn.classList.remove("hidden");
         visitBtn.disabled = true;
-
-        // ৩ সেকেন্ড কুলডাউন
         let cooldown = 3;
         const cdInterval = setInterval(() => {
-            visitBtn.innerHTML = `<i class="fa-solid fa-clock"></i> অপেক্ষা করুন (${cooldown}s)`;
+            visitBtn.innerHTML = '<i class="fa-solid fa-clock"></i> অপেক্ষা করুন (' + cooldown + 's)';
             cooldown--;
             if (cooldown < 0) {
                 clearInterval(cdInterval);
@@ -549,9 +702,12 @@
     function disableTaskSystem(msg) {
         document.getElementById("captchaBox").classList.add("hidden");
         document.getElementById("loadingSection").classList.add("hidden");
+        document.getElementById("timerSection").classList.add("hidden");
+        document.getElementById("verifySection").classList.add("hidden");
         const visitBtn = document.getElementById("visitBtn");
+        visitBtn.classList.remove("hidden");
         visitBtn.disabled = true;
-        visitBtn.innerHTML = '<i class="fa-solid fa-ban"></i> কাজ উপলব্ধ নেই';
+        visitBtn.innerHTML = '<i class="fa-solid fa-ban"></i> কাজ শেষ / উপলব্ধ নেই';
         showStatus(msg, "danger", 0);
     }
 
@@ -564,18 +720,20 @@
     function setButtonLoading(buttonElem, isLoading, text) {
         if (isLoading) {
             buttonElem.disabled = true;
-            buttonElem.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> ${text}`;
+            buttonElem.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> ' + text;
         } else {
             buttonElem.disabled = false;
             buttonElem.innerHTML = text;
         }
     }
 
-    function showStatus(msg, type, duration = 3000, elementId = "statusMsg") {
+    function showStatus(msg, type, duration, elementId) {
+        duration = duration || 3000;
+        elementId = elementId || "statusMsg";
         const statusMsg = document.getElementById(elementId);
         const icon = type === "success" ? '<i class="fa-solid fa-circle-check"></i>' : '<i class="fa-solid fa-circle-exclamation"></i>';
         statusMsg.className = "status-message " + (type === "success" ? "status-success" : "status-danger");
-        statusMsg.innerHTML = `${icon} <span>${msg}</span>`;
+        statusMsg.innerHTML = icon + " <span>" + msg + "</span>";
         if (statusTimeout) clearTimeout(statusTimeout);
         if (duration > 0) {
             statusTimeout = setTimeout(() => {
