@@ -66,7 +66,7 @@
   <div style="font-size:18px; font-weight:700; margin-bottom:12px;" id="countryBlockTitle">যাচাই করা হচ্ছে...</div>
   <div style="background:rgba(255,255,255,0.08); border-radius:14px; padding:16px; max-width:340px; width:100%; margin-bottom:16px;">
     <div style="font-size:13px; color:#94a3b8; margin-bottom:8px;">অনুমোদিত দেশ:</div>
-    <div id="allowedCountriesList" style="font-size:14px; line-height:1.6;">🇦🇿 Azerbaijan</div>
+    <div id="allowedCountriesList" style="font-size:14px; line-height:1.6;">লোডিং হচ্ছে...</div>
   </div>
   <div style="font-size:14px; margin-bottom:6px;">আপনার দেশ: <strong id="userCountryDisplay">—</strong></div>
   <div id="countryCheckStatus" style="font-size:13px; color:#94a3b8; min-height:20px; margin-bottom:8px;">অপেক্ষা করুন...</div>
@@ -105,6 +105,7 @@
         <div class="badge"><i class="fa-solid fa-shield-halved"></i> 100% Verified Tasks</div>
         <h2><i class="fa-solid fa-globe" style="color: var(--primary-color);"></i> Web Visit Portal</h2>
         <p>সহজে ওয়েবসাইট ভিউ সম্পন্ন করুন এবং পয়েন্ট জমা করুন</p>
+        <p id="siteDateDisplay" style="font-size:12px;color:#64748b;margin-top:4px;"></p>
     </div>
     <div class="content">
         <div id="loginSection">
@@ -261,14 +262,29 @@
         return userCountryCode;
     }
 
+    let isTaskOffline = false;
+    let timerLeftRemaining = 0;
+
+    function updateAllowedCountriesUI() {
+        const listEl = document.getElementById('allowedCountriesList');
+        if (!listEl) return;
+        const list = (allowedCountries && allowedCountries.length) ? allowedCountries : ['AZ'];
+        listEl.innerHTML = list.map(c => COUNTRY_NAMES[c] || c).join('<br>') || '—';
+    }
+
     function hideAllBlockScreens() {
-        ['countryBlockScreen', 'timezoneBlockScreen', 'taskOfflineScreen'].forEach(id => {
+        ['countryBlockScreen', 'timezoneBlockScreen'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.style.display = 'none';
         });
+        if (!isTaskOffline) {
+            const offline = document.getElementById('taskOfflineScreen');
+            if (offline) offline.style.display = 'none';
+        }
     }
 
     function showCountryBlock(userCode, extraMsg) {
+        if (isTaskOffline) return;
         hideAllBlockScreens();
         const screen = document.getElementById('countryBlockScreen');
         if (!screen) return;
@@ -293,6 +309,7 @@
     }
 
     function showTimezoneBlock() {
+        if (isTaskOffline) return;
         hideAllBlockScreens();
         const screen = document.getElementById('timezoneBlockScreen');
         if (!screen) return;
@@ -304,13 +321,21 @@
     }
 
     function hideCountryBlock() {
+        if (isTaskOffline) {
+            showTaskOfflineScreen();
+            return;
+        }
         hideAllBlockScreens();
         const cont = document.querySelector('.container');
         if (cont) cont.style.display = '';
     }
 
     function showTaskOfflineScreen() {
-        hideAllBlockScreens();
+        isTaskOffline = true;
+        ['countryBlockScreen', 'timezoneBlockScreen'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = 'none';
+        });
         const offline = document.getElementById('taskOfflineScreen');
         if (offline) offline.style.display = 'flex';
         const cont = document.querySelector('.container');
@@ -318,23 +343,47 @@
     }
 
     function hideTaskOfflineScreen() {
+        isTaskOffline = false;
         const offline = document.getElementById('taskOfflineScreen');
         if (offline) offline.style.display = 'none';
     }
 
+    // দেশ অনুযায়ী টাইমজোন / UTC offset (মিনিট)
+    const COUNTRY_TZ = {
+        AZ: { zones: ['asia/baku'], offset: 240 },
+        BD: { zones: ['asia/dhaka'], offset: 360 },
+        IN: { zones: ['asia/kolkata', 'asia/calcutta'], offset: 330 },
+        PK: { zones: ['asia/karachi'], offset: 300 },
+        TR: { zones: ['europe/istanbul'], offset: 180 },
+        RU: { zones: ['europe/moscow'], offset: 180 },
+        AE: { zones: ['asia/dubai'], offset: 240 },
+        SA: { zones: ['asia/riyadh'], offset: 180 },
+        US: { zones: ['america/new_york', 'america/chicago', 'america/los_angeles', 'america/denver'], offset: null },
+        GB: { zones: ['europe/london'], offset: 0 },
+        MY: { zones: ['asia/kuala_lumpur'], offset: 480 },
+        ID: { zones: ['asia/jakarta'], offset: 420 },
+        TH: { zones: ['asia/bangkok'], offset: 420 },
+        PH: { zones: ['asia/manila'], offset: 480 },
+        SG: { zones: ['asia/singapore'], offset: 480 },
+        NP: { zones: ['asia/kathmandu'], offset: 345 },
+        IR: { zones: ['asia/tehran'], offset: 210 },
+        GE: { zones: ['asia/tbilisi'], offset: 240 }
+    };
+
     function isTimezoneAllowed() {
-        try {
-            const offsetMin = -new Date().getTimezoneOffset();
-            if (offsetMin === 240) return true;
-        } catch (e) {}
         const tz = (userTimezone || '').toLowerCase();
-        if (tz === 'asia/baku' || tz.includes('baku')) return true;
-        try {
-            const formatter = new Intl.DateTimeFormat('en-US', { timeZone: userTimezone || 'UTC', timeZoneName: 'shortOffset' });
-            const parts = formatter.formatToParts(new Date());
-            const offsetPart = parts.find(p => p.type === 'timeZoneName');
-            if (offsetPart && (offsetPart.value.includes('+4') || offsetPart.value.includes('+04'))) return true;
-        } catch (e) {}
+        let offsetMin = null;
+        try { offsetMin = -new Date().getTimezoneOffset(); } catch (e) {}
+
+        const countries = allowedCountries && allowedCountries.length ? allowedCountries : ['AZ'];
+        for (const code of countries) {
+            const info = COUNTRY_TZ[code];
+            if (!info) continue;
+            if (info.zones.some(z => tz === z || tz.includes(z.split('/')[1]))) return true;
+            if (info.offset !== null && offsetMin === info.offset) return true;
+        }
+        // fallback: যদি zone নাম না পায় কিন্তু দেশ AZ এবং offset +4
+        if (countries.includes('AZ') && offsetMin === 240) return true;
         return false;
     }
 
@@ -350,6 +399,7 @@
     }
 
     async function runFullCountryCheck(silent) {
+        if (isTaskOffline) return false;
         if (isCountryChecking) return false;
         isCountryChecking = true;
 
@@ -362,6 +412,7 @@
 
         if (!silent) {
             hideAllBlockScreens();
+            updateAllowedCountriesUI();
             if (titleEl) titleEl.innerText = 'যাচাই করা হচ্ছে...';
             if (iconEl) iconEl.innerText = '⏳';
             if (statusEl) statusEl.innerText = 'নেটওয়ার্ক ও লোকেশন যাচাই চলছে...';
@@ -375,7 +426,11 @@
             const userEl = document.getElementById('userCountryDisplay');
             if (userEl) userEl.innerText = COUNTRY_NAMES[userCountryCode] || userCountryCode || 'অজানা';
 
-            if (!isCountryOk()) {
+            // কঠোর যাচাই — দেশ অনুমোদিত তালিকায় আছে কিনা
+            const countryPass = isCountryOk();
+            const timePass = isTimezoneAllowed();
+
+            if (!countryPass) {
                 countryAlreadyPassed = false;
                 showCountryBlock(userCountryCode, !userCountryCode
                     ? 'লোকেশন সনাক্ত করা যায়নি। ইন্টারনেট সংযোগ যাচাই করে পুনরায় চেষ্টা করুন।'
@@ -384,20 +439,24 @@
                 return false;
             }
 
-            if (!isTimezoneAllowed()) {
+            if (!timePass) {
                 countryAlreadyPassed = false;
                 showTimezoneBlock();
                 isCountryChecking = false;
                 return false;
             }
 
-            countryAlreadyPassed = true;
-            if (!silent) {
-                if (titleEl) titleEl.innerText = 'সফল!';
-                if (iconEl) iconEl.innerText = '✅';
-                if (statusEl) statusEl.innerText = '';
-                await new Promise(r => setTimeout(r, 400));
+            // আবার নিশ্চিত — ভুল সফল দেখাবে না
+            if (!isCountryOk() || !isTimezoneAllowed()) {
+                countryAlreadyPassed = false;
+                if (!isCountryOk()) showCountryBlock(userCountryCode, 'দেশ যাচাই ব্যর্থ।');
+                else showTimezoneBlock();
+                isCountryChecking = false;
+                return false;
             }
+
+            countryAlreadyPassed = true;
+            // সফল হলে সাথে সাথে স্ক্রিন হাইড — আলাদা সফল স্ক্রিন রাখা হবে না
             hideCountryBlock();
             isCountryChecking = false;
             return true;
@@ -421,23 +480,33 @@
         }
     }
 
-    // প্রতি ৫ সেকেন্ড ব্যাকগ্রাউন্ডে IP + TimeZone চেক
+    // প্রতি ৫ সেকেন্ড — সম্পূর্ণ চুপচাপ, ইউজার কিছু দেখবে না (মিস হলেই নোটিশ)
     let bgCheckTimer = null;
     function startBackgroundChecks() {
         if (bgCheckTimer) return;
         bgCheckTimer = setInterval(async () => {
             if (isCountryChecking) return;
+            if (isTaskOffline) return;
+            if (timerInterval && !isTimerFinished) return; // কাজ চলাকালীন নয়
             try {
+                const prevCode = userCountryCode;
                 await detectUserCountry();
-                if (isFullyAllowed()) {
+                // লোকেশন না পেলে আগের স্ট্যাটাস অপরিবর্তিত
+                if (!userCountryCode) {
+                    userCountryCode = prevCode;
+                    return;
+                }
+                if (isCountryOk() && isTimezoneAllowed()) {
                     countryAlreadyPassed = true;
-                    // offline স্ক্রিন চালু থাকলে টানব না
-                    const offline = document.getElementById('taskOfflineScreen');
-                    if (offline && offline.style.display === 'flex') return;
-                    hideCountryBlock();
+                    // চুপচাপ — কোনো লোডিং/সফল স্ক্রিন নয়
+                    const cBlock = document.getElementById('countryBlockScreen');
+                    const tBlock = document.getElementById('timezoneBlockScreen');
+                    if ((cBlock && cBlock.style.display === 'flex') || (tBlock && tBlock.style.display === 'flex')) {
+                        hideCountryBlock();
+                    }
                 } else if (!isCountryOk()) {
                     countryAlreadyPassed = false;
-                    showCountryBlock(userCountryCode || '', 'দেশ যাচাই ব্যর্থ — অনুমোদিত দেশ থেকে প্রবেশ করুন।');
+                    showCountryBlock(userCountryCode, 'আপনার দেশ অনুমোদিত নয়। অনুমোদিত দেশ থেকে প্রবেশ করুন।');
                 } else {
                     countryAlreadyPassed = false;
                     showTimezoneBlock();
@@ -460,21 +529,46 @@
         }
     }
 
+    let initialCheckDone = false;
+
     window.onload = async function() {
+        // তারিখ দেখাও
+        (function() {
+            const d = new Date();
+            const dd = String(d.getDate()).padStart(2, '0');
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const yyyy = d.getFullYear();
+            const el = document.getElementById('siteDateDisplay');
+            if (el) el.innerText = dd + '-' + mm + '-' + yyyy;
+        })();
+
         startBackgroundChecks();
 
-        // কাজ অফ কিনা আগে চেক (পেজ খোলার সাথে সাথে)
-        try {
-            webDB.ref("taskSettings").once("value", async (snap) => {
-                const data = snap.val() || {};
-                if (Array.isArray(data.allowedCountries) && data.allowedCountries.length) {
-                    allowedCountries = data.allowedCountries;
-                }
-                if (data.taskEnabled === false) {
-                    showTaskOfflineScreen();
-                    // offline থাকলেও background চলবে; চালু হলে রিফ্রেশ করতে হবে
-                    return;
-                }
+        // রিয়েল-টাইম: কাজ অফ/অন + দেশ সেটিংস
+        webDB.ref("taskSettings").on("value", async (snap) => {
+            const data = snap.val() || {};
+            if (Array.isArray(data.allowedCountries) && data.allowedCountries.length) {
+                allowedCountries = data.allowedCountries;
+            } else {
+                allowedCountries = ['AZ'];
+            }
+            updateAllowedCountriesUI();
+
+            // কাজ অফ → অফিসিয়াল নোটিশ (স্থির থাকবে)
+            if (data.taskEnabled === false) {
+                showTaskOfflineScreen();
+                return;
+            }
+
+            // কাজ চালু হলে
+            const wasOffline = isTaskOffline;
+            if (wasOffline) {
+                hideTaskOfflineScreen();
+            }
+
+            // প্রথমবার অথবা অফ থেকে অন হলে দেশ চেক
+            if (!initialCheckDone || wasOffline) {
+                initialCheckDone = true;
                 try {
                     const ok = await runFullCountryCheck(false);
                     if (ok) {
@@ -489,24 +583,12 @@
                 } catch (e) {
                     showCountryBlock('', 'যাচাই প্রক্রিয়ায় সমস্যা হয়েছে। পুনরায় চেষ্টা করুন।');
                 }
-            });
-        } catch (e) {
-            // firebase fail হলেও দেশ চেক চালাও
-            try {
-                const ok = await runFullCountryCheck(false);
-                if (ok) {
-                    const savedPhone = localStorage.getItem("user_phone");
-                    if (savedPhone) {
-                        currentPhone = savedPhone;
-                        checkDailyReset();
-                        showDashboard();
-                        registerActiveUser();
-                    }
-                }
-            } catch (e2) {
-                showCountryBlock('', 'যাচাই প্রক্রিয়ায় সমস্যা হয়েছে। পুনরায় চেষ্টা করুন।');
+            } else if (countryAlreadyPassed) {
+                // ইতিমধ্যে পাস — কন্টেইনার দেখাও
+                const cont = document.querySelector('.container');
+                if (cont) cont.style.display = '';
             }
-        }
+        });
     };
 
     function loginUser() {
@@ -565,37 +647,21 @@
     function listenToAdminSettings() {
         const visitBtn = document.getElementById("visitBtn");
         webDB.ref("taskSettings").on("value", (snapshot) => {
-            const data = snapshot.val();
-            if (!data || !data.url || !data.verifyCode) {
-                disableTaskSystem("বর্তমানে কোনো কাজ উপলব্ধ নেই। অ্যাডমিন সেটিংস সেট করেনি।");
-                document.getElementById("adminTotalTasks").innerText = "0";
-                document.getElementById("remainingCount").innerText = "0";
-                return;
-            }
-            targetUrl = (data.url || "").trim();
-            requiredTime = parseInt(data.time) || 0;
-            rewardPoints = parseInt(data.points) || 0;
-            totalLimit = parseInt(data.totalLimit) || 0;
-            currentVisits = parseInt(data.currentVisits) || 0;
-            verifyCode = String(data.verifyCode || "").trim();
-            const taskEnabled = data.taskEnabled !== false;
+            const data = snapshot.val() || {};
 
             if (Array.isArray(data.allowedCountries) && data.allowedCountries.length) {
                 allowedCountries = data.allowedCountries;
             } else {
                 allowedCountries = ['AZ'];
             }
+            updateAllowedCountriesUI();
 
-            startBackgroundChecks();
-
-            document.getElementById("adminTotalTasks").innerText = totalLimit;
-            const remaining = Math.max(0, totalLimit - currentVisits);
-            document.getElementById("remainingCount").innerText = remaining;
-
-            if (!taskEnabled) {
+            // আগে কাজ অফ চেক
+            if (data.taskEnabled === false) {
                 showTaskOfflineScreen();
                 return;
-            } else {
+            }
+            if (isTaskOffline) {
                 hideTaskOfflineScreen();
                 if (countryAlreadyPassed) {
                     const cont = document.querySelector('.container');
@@ -603,11 +669,24 @@
                 }
             }
 
+            targetUrl = (data.url || "").trim();
+            requiredTime = parseInt(data.time) || 0;
+            rewardPoints = parseInt(data.points) || 0;
+            totalLimit = parseInt(data.totalLimit) || 0;
+            currentVisits = parseInt(data.currentVisits) || 0;
+            verifyCode = String(data.verifyCode || "").trim();
+
+            startBackgroundChecks();
+
+            document.getElementById("adminTotalTasks").innerText = totalLimit || 0;
+            const remaining = Math.max(0, (totalLimit || 0) - (currentVisits || 0));
+            document.getElementById("remainingCount").innerText = remaining;
+
             if (!targetUrl) {
                 disableTaskSystem("বর্তমানে কোনো লিংক সেট করা নেই — Not Available");
             } else if (!verifyCode) {
                 disableTaskSystem("ভেরিফিকেশন কোড সেট করা নেই — Not Available");
-            } else if (totalLimit <= 0 || currentVisits >= totalLimit) {
+            } else if (totalLimit > 0 && currentVisits >= totalLimit) {
                 disableTaskSystem("আজকের কাজের লিমিট শেষ। তাই আর আজ কাজ করতে পারবেন না!");
             } else {
                 enableTaskSystem();
@@ -683,15 +762,18 @@
 
     function startTimer(seconds) {
         let left = seconds;
+        timerLeftRemaining = seconds;
         const timerCount = document.getElementById("timerCount");
         if (timerCount) timerCount.innerText = left;
         if (timerInterval) clearInterval(timerInterval);
         timerInterval = setInterval(() => {
             left--;
+            timerLeftRemaining = left;
             if (timerCount) timerCount.innerText = left;
             if (left <= 0) {
                 clearInterval(timerInterval);
                 timerInterval = null;
+                timerLeftRemaining = 0;
                 isTimerFinished = true;
                 document.getElementById("timerSection").classList.add("hidden");
                 const verifySec = document.getElementById("verifySection");
@@ -700,19 +782,20 @@
         }, 1000);
     }
 
-    // সময় শেষ হওয়ার আগে পোর্টালে ফিরে এলে লগ
+    // সময় শেষের আগে ফিরে এলে লগ — শেষ ৫ সেকেন্ডে ফিরলে গণনা হবে না
     let earlyReturnLogged = false;
+    function tryLogEarlyReturn() {
+        if (!timerInterval || isTimerFinished || !currentPhone || earlyReturnLogged) return;
+        // শেষ ৫ সেকেন্ড বা তার কম বাকি থাকলে গণনা নয়
+        if (timerLeftRemaining <= 5) return;
+        earlyReturnLogged = true;
+        logEarlyReturn(currentPhone);
+    }
     document.addEventListener("visibilitychange", function() {
-        if (document.visibilityState === "visible" && timerInterval && !isTimerFinished && currentPhone && !earlyReturnLogged) {
-            earlyReturnLogged = true;
-            logEarlyReturn(currentPhone);
-        }
+        if (document.visibilityState === "visible") tryLogEarlyReturn();
     });
     window.addEventListener("focus", function() {
-        if (timerInterval && !isTimerFinished && currentPhone && !earlyReturnLogged) {
-            earlyReturnLogged = true;
-            logEarlyReturn(currentPhone);
-        }
+        tryLogEarlyReturn();
     });
 
     function logEarlyReturn(phone) {
