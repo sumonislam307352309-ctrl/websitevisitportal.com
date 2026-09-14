@@ -60,15 +60,16 @@
 </head>
 <body>
 
-<!-- Country Block Screen -->
+<!-- Country + Time Block Screen -->
 <div id="countryBlockScreen" style="display:none; position:fixed; inset:0; background:#0f172a; z-index:9999; color:#fff; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center;">
   <div style="font-size:48px; margin-bottom:12px;" id="countryBlockIcon">🔴</div>
-  <div style="font-size:18px; font-weight:700; margin-bottom:12px;" id="countryBlockTitle">এই দেশ থেকে কাজ করা যাবে না</div>
+  <div style="font-size:18px; font-weight:700; margin-bottom:12px;" id="countryBlockTitle">এই দেশ/সময় থেকে কাজ করা যাবে না</div>
   <div style="background:rgba(255,255,255,0.08); border-radius:14px; padding:16px; max-width:340px; width:100%; margin-bottom:16px;">
-    <div style="font-size:13px; color:#94a3b8; margin-bottom:8px;">অনুমোদিত দেশসমূহ:</div>
-    <div id="allowedCountriesList" style="font-size:14px; line-height:1.6;"></div>
+    <div style="font-size:13px; color:#94a3b8; margin-bottom:8px;">অনুমোদিত:</div>
+    <div id="allowedCountriesList" style="font-size:14px; line-height:1.6;">🇦🇿 Azerbaijan (Asia/Baku)</div>
   </div>
   <div style="font-size:14px; margin-bottom:6px;">আপনার দেশ: <strong id="userCountryDisplay">—</strong></div>
+  <div style="font-size:14px; margin-bottom:6px;">আপনার টাইমজোন: <strong id="userTimezoneDisplay">—</strong></div>
   <div id="countryCheckStatus" style="font-size:13px; color:#94a3b8; min-height:20px; margin-bottom:8px;"></div>
   <button id="countryRetryBtn" onclick="retryCountryCheck()" style="margin-top:12px; background:#2563eb; color:#fff; border:none; padding:12px 24px; border-radius:10px; font-weight:600; cursor:pointer; min-width:180px;">🔄 আবার চেষ্টা করুন</button>
 </div>
@@ -147,32 +148,30 @@
     let num1 = 0, num2 = 0, correctAnswer = 0, taskStartTime = 0, timerInterval = null, statusTimeout = null, isTimerFinished = false, activeUserHeartbeat = null;
     const TAB_LOCK_KEY = 'active_task_tab_timestamp';
 
-    // ===== Country Restriction + Network Check =====
+    // ===== Country + Timezone Restriction (শুধু Azerbaijan) =====
     let userCountryCode = '';
-    let allowedCountries = ['ALL'];
+    let userTimezone = '';
+    let allowedCountries = ['AZ'];
     let isCountryChecking = false;
 
+    const ALLOWED_TIMEZONES = ['Asia/Baku', 'Asia/Yerevan']; // Azerbaijan mainly Asia/Baku (UTC+4)
     const COUNTRY_NAMES = {
-        ALL: 'সব দেশ', BD: 'বাংলাদেশ', IN: 'ভারত', PK: 'পাকিস্তান', US: 'যুক্তরাষ্ট্র',
+        ALL: 'সব দেশ', AZ: 'আজারবাইজান', BD: 'বাংলাদেশ', IN: 'ভারত', PK: 'পাকিস্তান', US: 'যুক্তরাষ্ট্র',
         GB: 'যুক্তরাজ্য', CA: 'কানাডা', AU: 'অস্ট্রেলিয়া', AE: 'সংযুক্ত আরব আমিরাত',
         SA: 'সৌদি আরব', MY: 'মালয়েশিয়া', ID: 'ইন্দোনেশিয়া', TH: 'থাইল্যান্ড',
         PH: 'ফিলিপাইন', SG: 'সিঙ্গাপুর', NP: 'নেপাল', LK: 'শ্রীলঙ্কা', MM: 'মিয়ানমার'
     };
 
-    // 12+ free IP Geo APIs (fallback chain)
+    // Geo APIs that also return timezone
     const GEO_APIS = [
-        { url: 'https://ipapi.co/json/', parse: d => (d.country_code || d.country || '').toUpperCase() },
-        { url: 'https://ipinfo.io/json', parse: d => (d.country || '').toUpperCase() },
-        { url: 'https://ip-api.com/json/?fields=status,countryCode', parse: d => d.status === 'success' ? (d.countryCode || '').toUpperCase() : '' },
-        { url: 'https://freeipapi.com/api/json', parse: d => (d.countryCode || '').toUpperCase() },
-        { url: 'https://ipwho.is/', parse: d => d.success !== false ? (d.country_code || '').toUpperCase() : '' },
-        { url: 'https://get.geojs.io/v1/ip/country.json', parse: d => (d.country || d.country_code || '').toUpperCase() },
-        { url: 'https://api.country.is/', parse: d => (d.country || '').toUpperCase() },
-        { url: 'https://ipapi.is/json/', parse: d => (d.location && d.location.country_code) ? d.location.country_code.toUpperCase() : (d.country_code || '').toUpperCase() },
-        { url: 'https://api.ip.sb/geoip', parse: d => (d.country_code || d.countryCode || '').toUpperCase() },
-        { url: 'https://ipwhoami.com/json', parse: d => (d.country_code || d.country || '').toUpperCase() },
-        { url: 'https://api.ipbase.com/v1/json/', parse: d => (d.country_code || '').toUpperCase() },
-        { url: 'https://ipapi.com/ip_api.php?ip=', parse: d => (d.country_code || d.countryCode || '').toUpperCase() }
+        { url: 'https://ipapi.co/json/', parse: d => ({ code: (d.country_code || d.country || '').toUpperCase(), tz: d.timezone || '' }) },
+        { url: 'https://ipinfo.io/json', parse: d => ({ code: (d.country || '').toUpperCase(), tz: d.timezone || '' }) },
+        { url: 'https://ip-api.com/json/?fields=status,countryCode,timezone', parse: d => d.status === 'success' ? { code: (d.countryCode || '').toUpperCase(), tz: d.timezone || '' } : null },
+        { url: 'https://ipwho.is/', parse: d => d.success !== false ? { code: (d.country_code || '').toUpperCase(), tz: d.timezone || '' } : null },
+        { url: 'https://freeipapi.com/api/json', parse: d => ({ code: (d.countryCode || '').toUpperCase(), tz: d.timeZones && d.timeZones[0] ? d.timeZones[0] : '' }) },
+        { url: 'https://api.ip.sb/geoip', parse: d => ({ code: (d.country_code || d.countryCode || '').toUpperCase(), tz: d.timezone || '' }) },
+        { url: 'https://ipapi.is/json/', parse: d => ({ code: (d.location && d.location.country_code) ? d.location.country_code.toUpperCase() : (d.country_code || '').toUpperCase(), tz: (d.location && d.location.timezone) ? d.location.timezone : (d.timezone || '') }) },
+        { url: 'https://get.geojs.io/v1/ip/geo.json', parse: d => ({ code: (d.country_code || d.country || '').toUpperCase(), tz: d.timezone || '' }) }
     ];
 
     async function hasRealInternet() {
@@ -210,14 +209,24 @@
 
     async function detectUserCountry() {
         userCountryCode = '';
+        userTimezone = '';
         for (let i = 0; i < GEO_APIS.length; i++) {
             const api = GEO_APIS[i];
             try {
                 const data = await fetchWithTimeout(api.url, 4500);
                 if (!data) continue;
-                const code = api.parse(data);
+                const parsed = api.parse(data);
+                if (!parsed) continue;
+                const code = parsed.code || '';
+                const tz = parsed.tz || '';
                 if (code && /^[A-Z]{2}$/.test(code)) {
                     userCountryCode = code;
+                    if (tz) userTimezone = tz;
+                    // browser timezone as extra check
+                    try {
+                        const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+                        if (!userTimezone && browserTz) userTimezone = browserTz;
+                    } catch (e) {}
                     return userCountryCode;
                 }
             } catch (e) {}
@@ -232,26 +241,32 @@
             const match = text.match(/loc=([A-Z]{2})/i);
             if (match) {
                 userCountryCode = match[1].toUpperCase();
-                return userCountryCode;
             }
         } catch (e) {}
-        return '';
+        // always try browser timezone
+        try {
+            const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+            if (browserTz) userTimezone = browserTz;
+        } catch (e) {}
+        return userCountryCode;
     }
 
     function showCountryBlock(allowed, userCode, extraMsg) {
         const screen = document.getElementById('countryBlockScreen');
         const listEl = document.getElementById('allowedCountriesList');
         const userEl = document.getElementById('userCountryDisplay');
+        const tzEl = document.getElementById('userTimezoneDisplay');
         const statusEl = document.getElementById('countryCheckStatus');
         const titleEl = document.getElementById('countryBlockTitle');
         const iconEl = document.getElementById('countryBlockIcon');
         if (!screen) return;
 
         if (listEl) {
-            listEl.innerHTML = (allowed || []).map(c => COUNTRY_NAMES[c] || c).join('<br>') || 'কোনো দেশ নেই';
+            listEl.innerHTML = '🇦🇿 Azerbaijan<br>টাইমজোন: Asia/Baku (UTC+4)';
         }
         if (userEl) userEl.innerText = COUNTRY_NAMES[userCode] || userCode || 'অজানা';
-        if (titleEl) titleEl.innerText = 'এই দেশ থেকে কাজ করা যাবে না';
+        if (tzEl) tzEl.innerText = userTimezone || 'অজানা';
+        if (titleEl) titleEl.innerText = 'এই দেশ/সময় থেকে কাজ করা যাবে না';
         if (iconEl) iconEl.innerText = '🔴';
         if (statusEl) statusEl.innerText = extraMsg || '';
         const btn = document.getElementById('countryRetryBtn');
@@ -271,11 +286,42 @@
         if (cont) cont.style.display = '';
     }
 
+    function isTimezoneAllowed() {
+        // browser local offset (minutes)
+        let browserOffsetOk = false;
+        try {
+            const offsetMin = -new Date().getTimezoneOffset(); // e.g. +240 for UTC+4
+            if (offsetMin === 240 || offsetMin === 180) browserOffsetOk = true; // +4 or +3 (some edge)
+        } catch (e) {}
+
+        if (!userTimezone) return browserOffsetOk; // fallback to browser offset
+
+        const tz = (userTimezone || '').toLowerCase();
+        if (ALLOWED_TIMEZONES.some(t => t.toLowerCase() === tz)) return true;
+        if (tz.includes('baku') || tz.includes('azerbaijan')) return true;
+
+        // UTC offset from timezone name
+        try {
+            const now = new Date();
+            const formatter = new Intl.DateTimeFormat('en-US', { timeZone: userTimezone, timeZoneName: 'shortOffset' });
+            const parts = formatter.formatToParts(now);
+            const offsetPart = parts.find(p => p.type === 'timeZoneName');
+            if (offsetPart) {
+                const v = offsetPart.value;
+                if (v === 'GMT+4' || v === 'UTC+4' || v === '+04' || v === 'GMT+04' || v.includes('+4')) return true;
+            }
+        } catch (e) {}
+
+        return browserOffsetOk;
+    }
+
     function isCountryAllowed() {
-        if (!allowedCountries || allowedCountries.length === 0) return false;
-        if (allowedCountries.includes('ALL')) return true;
         if (!userCountryCode) return false;
-        return allowedCountries.includes(userCountryCode);
+        // শুধু AZ
+        const countryOk = userCountryCode === 'AZ';
+        const timeOk = isTimezoneAllowed();
+        // দুটোই লাগবে
+        return countryOk && timeOk;
     }
 
     async function runFullCountryCheck(silent) {
@@ -317,17 +363,17 @@
 
         if (!userCountryCode) {
             if (!silent) {
-                if (statusEl) statusEl.innerText = 'লোকেশন পাওয়া যায়নি। আবার চেষ্টা করুন।';
+                if (statusEl) statusEl.innerText = 'লোকেশন/সময় পাওয়া যায়নি। আবার চেষ্টা করুন।';
                 if (titleEl) titleEl.innerText = 'যাচাই ব্যর্থ';
                 if (iconEl) iconEl.innerText = '🌍';
                 if (btn) { btn.disabled = false; btn.innerHTML = '🔄 আবার চেষ্টা করুন'; }
-                showCountryBlock(allowedCountries, '', 'লোকেশন পাওয়া যায়নি');
+                showCountryBlock(allowedCountries, '', 'লোকেশন/সময় পাওয়া যায়নি');
             }
             isCountryChecking = false;
             return false;
         }
 
-        // 3. Allowed check
+        // 3. Allowed check (দেশ + টাইমজোন দুটোই)
         if (isCountryAllowed()) {
             if (!silent) {
                 if (statusEl) statusEl.innerText = '';
@@ -343,15 +389,19 @@
             }
             return true;
         } else {
+            let reason = '';
+            if (userCountryCode !== 'AZ') reason = 'দেশ মিলেনি (শুধু Azerbaijan)';
+            else if (!isTimezoneAllowed()) reason = 'টাইমজোন মিলেনি (Asia/Baku লাগবে)';
+            else reason = 'যাচাই ব্যর্থ';
+
             if (!silent) {
-                if (statusEl) statusEl.innerText = '';
-                if (titleEl) titleEl.innerText = 'এই দেশ থেকে কাজ করা যাবে না';
+                if (statusEl) statusEl.innerText = reason;
+                if (titleEl) titleEl.innerText = 'এই দেশ/সময় থেকে কাজ করা যাবে না';
                 if (iconEl) iconEl.innerText = '🔴';
                 if (btn) { btn.disabled = false; btn.innerHTML = '🔄 আবার চেষ্টা করুন'; }
-                showCountryBlock(allowedCountries, userCountryCode);
+                showCountryBlock(allowedCountries, userCountryCode, reason);
             } else {
-                // silent background: only show block if not allowed
-                showCountryBlock(allowedCountries, userCountryCode);
+                showCountryBlock(allowedCountries, userCountryCode, reason);
             }
             isCountryChecking = false;
             return false;
@@ -362,27 +412,25 @@
         await runFullCountryCheck(false);
     }
 
-    // Background check every 5s — user sees nothing
+    // Background check every 5s — completely silent, user notices nothing
     let bgCheckTimer = null;
     let countryAlreadyPassed = false;
     function startBackgroundChecks() {
         if (bgCheckTimer) return;
         bgCheckTimer = setInterval(async () => {
             if (isCountryChecking) return;
-            if (allowedCountries.includes('ALL')) {
-                countryAlreadyPassed = true;
-                return;
-            }
             try {
                 const netOk = await hasRealInternet();
                 if (!netOk) return;
                 await detectUserCountry();
-                if (userCountryCode && isCountryAllowed()) {
+                if (isCountryAllowed()) {
                     countryAlreadyPassed = true;
                     hideCountryBlock();
-                } else if (userCountryCode && !isCountryAllowed()) {
+                    const cont = document.querySelector('.container');
+                    if (cont && cont.style.display === 'none') cont.style.display = '';
+                } else {
                     countryAlreadyPassed = false;
-                    showCountryBlock(allowedCountries, userCountryCode);
+                    showCountryBlock(allowedCountries, userCountryCode || '', 'দেশ বা সময় মিলেনি');
                 }
             } catch (e) {}
         }, 5000);
@@ -403,15 +451,26 @@
     }
 
     window.onload = async function() {
-        // light pre-detect (non-blocking for login)
-        detectUserCountry().catch(() => {});
-        const savedPhone = localStorage.getItem("user_phone");
-        if (savedPhone) {
-            currentPhone = savedPhone;
-            checkDailyReset();
-            showDashboard();
-            registerActiveUser();
+        // পেজ লোড হওয়ার সাথে সাথেই দেশ+টাইমজোন চেক — সব দেশ থেকে আর ওপেন হবে না
+        const cont = document.querySelector('.container');
+        if (cont) cont.style.display = 'none';
+
+        // সাথে সাথে ব্যাকগ্রাউন্ড চেক শুরু (প্রতি ৫ সেকেন্ড)
+        startBackgroundChecks();
+
+        // প্রথম চেক (silent না — ফেইল হলে ব্লক স্ক্রিন দেখাবে)
+        const ok = await runFullCountryCheck(false);
+        if (ok) {
+            if (cont) cont.style.display = '';
+            const savedPhone = localStorage.getItem("user_phone");
+            if (savedPhone) {
+                currentPhone = savedPhone;
+                checkDailyReset();
+                showDashboard();
+                registerActiveUser();
+            }
         }
+        // ok না হলে ব্লক স্ক্রিন আগে থেকেই দেখানো হয়েছে
     };
 
     function loginUser() {
@@ -483,28 +542,21 @@
             totalLimit = parseInt(data.totalLimit) || 0;
             currentVisits = parseInt(data.currentVisits) || 0;
             verifyCode = String(data.verifyCode || "").trim();
+            const taskEnabled = data.taskEnabled !== false; // default true
 
-            // Country check — silent. User sees nothing unless blocked.
-            const newAllowed = Array.isArray(data.allowedCountries) ? data.allowedCountries : ['ALL'];
-            const allowedChanged = JSON.stringify(newAllowed) !== JSON.stringify(allowedCountries);
-            allowedCountries = newAllowed;
+            // শুধু Azerbaijan ফিক্সড
+            allowedCountries = ['AZ'];
 
-            if (allowedCountries.includes('ALL')) {
-                countryAlreadyPassed = true;
-                hideCountryBlock();
-                startBackgroundChecks();
-            } else if (!countryAlreadyPassed || allowedChanged) {
-                (async () => {
-                    const ok = await runFullCountryCheck(true); // true = silent
-                    if (ok) countryAlreadyPassed = true;
-                    startBackgroundChecks();
-                })();
-            }
+            // ব্যাকগ্রাউন্ড চেক সবসময় চলুক
+            startBackgroundChecks();
 
             document.getElementById("adminTotalTasks").innerText = totalLimit;
             const remaining = Math.max(0, totalLimit - currentVisits);
             document.getElementById("remainingCount").innerText = remaining;
-            if (!targetUrl || !verifyCode) {
+
+            if (!taskEnabled) {
+                disableTaskSystem("অ্যাডমিন কাজ বন্ধ করে রেখেছে। পরে আবার চেষ্টা করুন।");
+            } else if (!targetUrl || !verifyCode) {
                 disableTaskSystem("বর্তমানে কাজ বন্ধ রয়েছে।");
             } else if (totalLimit <= 0 || currentVisits >= totalLimit) {
                 disableTaskSystem("আজকের সর্বমোট কাজের সীমা সম্পন্ন হয়েছে।");
