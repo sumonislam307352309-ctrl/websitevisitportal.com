@@ -60,21 +60,47 @@
 </head>
 <body>
 
-<!-- Country + Time Block Screen -->
-<div id="countryBlockScreen" style="display:none; position:fixed; inset:0; background:#0f172a; z-index:9999; color:#fff; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center;">
-  <div style="font-size:48px; margin-bottom:12px;" id="countryBlockIcon">🔴</div>
-  <div style="font-size:18px; font-weight:700; margin-bottom:12px;" id="countryBlockTitle">এই দেশ/সময় থেকে কাজ করা যাবে না</div>
+<!-- Loading / Country Block Screen -->
+<div id="countryBlockScreen" style="display:flex; position:fixed; inset:0; background:#0f172a; z-index:9999; color:#fff; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center;">
+  <div style="font-size:48px; margin-bottom:12px;" id="countryBlockIcon">⏳</div>
+  <div style="font-size:18px; font-weight:700; margin-bottom:12px;" id="countryBlockTitle">যাচাই করা হচ্ছে...</div>
   <div style="background:rgba(255,255,255,0.08); border-radius:14px; padding:16px; max-width:340px; width:100%; margin-bottom:16px;">
-    <div style="font-size:13px; color:#94a3b8; margin-bottom:8px;">অনুমোদিত:</div>
-    <div id="allowedCountriesList" style="font-size:14px; line-height:1.6;">🇦🇿 Azerbaijan (Asia/Baku)</div>
+    <div style="font-size:13px; color:#94a3b8; margin-bottom:8px;">অনুমোদিত দেশ:</div>
+    <div id="allowedCountriesList" style="font-size:14px; line-height:1.6;">🇦🇿 Azerbaijan</div>
   </div>
   <div style="font-size:14px; margin-bottom:6px;">আপনার দেশ: <strong id="userCountryDisplay">—</strong></div>
-  <div style="font-size:14px; margin-bottom:6px;">আপনার টাইমজোন: <strong id="userTimezoneDisplay">—</strong></div>
-  <div id="countryCheckStatus" style="font-size:13px; color:#94a3b8; min-height:20px; margin-bottom:8px;"></div>
-  <button id="countryRetryBtn" onclick="retryCountryCheck()" style="margin-top:12px; background:#2563eb; color:#fff; border:none; padding:12px 24px; border-radius:10px; font-weight:600; cursor:pointer; min-width:180px;">🔄 আবার চেষ্টা করুন</button>
+  <div id="countryCheckStatus" style="font-size:13px; color:#94a3b8; min-height:20px; margin-bottom:8px;">অপেক্ষা করুন...</div>
+  <button id="countryRetryBtn" onclick="retryCountryCheck()" style="margin-top:12px; background:#2563eb; color:#fff; border:none; padding:12px 24px; border-radius:10px; font-weight:600; cursor:pointer; min-width:180px; display:none;">🔄 আবার চেষ্টা করুন</button>
 </div>
 
-<div class="container">
+<!-- Timezone Block Screen (আলাদা) -->
+<div id="timezoneBlockScreen" style="display:none; position:fixed; inset:0; background:#0f172a; z-index:9999; color:#fff; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center;">
+  <div style="font-size:48px; margin-bottom:12px;">🕐</div>
+  <div style="font-size:18px; font-weight:700; margin-bottom:12px;">টাইমজোন মিলছে না</div>
+  <div style="background:rgba(255,255,255,0.08); border-radius:14px; padding:16px; max-width:340px; width:100%; margin-bottom:16px; font-size:14px; line-height:1.7;">
+    আপনার IP অনুযায়ী দেশ সঠিক, তবে ডিভাইসের সময়/টাইমজোন অনুমোদিত নয়।<br><br>
+    প্রয়োজনীয় টাইমজোন: <strong>Asia/Baku (UTC+4)</strong>
+  </div>
+  <div style="font-size:14px; margin-bottom:6px;">আপনার টাইমজোন: <strong id="tzUserDisplay">—</strong></div>
+  <div style="font-size:13px; color:#94a3b8; margin-bottom:12px;">ডিভাইসের তারিখ ও সময় স্বয়ংক্রিয় (Automatic) রাখুন।</div>
+  <button onclick="retryCountryCheck()" style="margin-top:8px; background:#2563eb; color:#fff; border:none; padding:12px 24px; border-radius:10px; font-weight:600; cursor:pointer; min-width:180px;">🔄 আবার চেষ্টা করুন</button>
+</div>
+
+<!-- কাজ অফ — অফিসিয়াল নোটিশ -->
+<div id="taskOfflineScreen" style="display:none; position:fixed; inset:0; background:linear-gradient(160deg,#0f172a 0%,#1e293b 100%); z-index:10000; color:#fff; flex-direction:column; align-items:center; justify-content:center; padding:28px; text-align:center;">
+  <div style="width:80px;height:80px;border-radius:50%;background:rgba(239,68,68,0.15);border:2px solid #ef4444;display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:36px;">⛔</div>
+  <div style="font-size:22px;font-weight:700;margin-bottom:10px;">কাজ সাময়িকভাবে স্থগিত</div>
+  <div style="font-size:14px;color:#94a3b8;max-width:340px;line-height:1.7;margin-bottom:22px;">
+    কর্তৃপক্ষের সিদ্ধান্ত অনুযায়ী বর্তমানে সকল ওয়েব ভিজিট টাস্ক বন্ধ রাখা হয়েছে।
+  </div>
+  <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 18px;max-width:320px;width:100%;font-size:13px;color:#cbd5e1;line-height:1.6;">
+    <div style="margin-bottom:6px;">📢 <strong style="color:#fff;">অফিসিয়াল নোটিশ</strong></div>
+    কাজ পুনরায় চালু হলে আপনি স্বাভাবিকভাবে প্রবেশ করে টাস্ক সম্পন্ন করতে পারবেন। ধৈর্য ধরে অপেক্ষা করার জন্য ধন্যবাদ।
+  </div>
+  <button onclick="location.reload()" style="margin-top:24px;background:#2563eb;color:#fff;border:none;padding:13px 28px;border-radius:10px;font-weight:600;cursor:pointer;font-size:14px;">🔄 পুনরায় চেষ্টা করুন</button>
+</div>
+
+<div class="container" style="display:none;">
     <div class="header">
         <div class="badge"><i class="fa-solid fa-shield-halved"></i> 100% Verified Tasks</div>
         <h2><i class="fa-solid fa-globe" style="color: var(--primary-color);"></i> Web Visit Portal</h2>
@@ -148,52 +174,33 @@
     let num1 = 0, num2 = 0, correctAnswer = 0, taskStartTime = 0, timerInterval = null, statusTimeout = null, isTimerFinished = false, activeUserHeartbeat = null;
     const TAB_LOCK_KEY = 'active_task_tab_timestamp';
 
-    // ===== Country + Timezone Restriction (শুধু Azerbaijan) =====
+    // ===== শুধু Azerbaijan — Country + Timezone Restriction =====
     let userCountryCode = '';
     let userTimezone = '';
     let allowedCountries = ['AZ'];
     let isCountryChecking = false;
+    let countryAlreadyPassed = false;
 
-    const ALLOWED_TIMEZONES = ['Asia/Baku', 'Asia/Yerevan']; // Azerbaijan mainly Asia/Baku (UTC+4)
     const COUNTRY_NAMES = {
-        ALL: 'সব দেশ', AZ: 'আজারবাইজান', BD: 'বাংলাদেশ', IN: 'ভারত', PK: 'পাকিস্তান', US: 'যুক্তরাষ্ট্র',
-        GB: 'যুক্তরাজ্য', CA: 'কানাডা', AU: 'অস্ট্রেলিয়া', AE: 'সংযুক্ত আরব আমিরাত',
-        SA: 'সৌদি আরব', MY: 'মালয়েশিয়া', ID: 'ইন্দোনেশিয়া', TH: 'থাইল্যান্ড',
-        PH: 'ফিলিপাইন', SG: 'সিঙ্গাপুর', NP: 'নেপাল', LK: 'শ্রীলঙ্কা', MM: 'মিয়ানমার'
+        AZ: '🇦🇿 Azerbaijan', BD: '🇧🇩 Bangladesh', IN: '🇮🇳 India', PK: '🇵🇰 Pakistan',
+        US: '🇺🇸 United States', GB: '🇬🇧 United Kingdom', TR: '🇹🇷 Turkey', RU: '🇷🇺 Russia',
+        AE: '🇦🇪 UAE', SA: '🇸🇦 Saudi Arabia', MY: '🇲🇾 Malaysia', ID: '🇮🇩 Indonesia',
+        TH: '🇹🇭 Thailand', PH: '🇵🇭 Philippines', SG: '🇸🇬 Singapore', NP: '🇳🇵 Nepal',
+        IR: '🇮🇷 Iran', GE: '🇬🇪 Georgia', CA: '🇨🇦 Canada', AU: '🇦🇺 Australia'
     };
 
-    // Geo APIs that also return timezone
-    const GEO_APIS = [
-        { url: 'https://ipapi.co/json/', parse: d => ({ code: (d.country_code || d.country || '').toUpperCase(), tz: d.timezone || '' }) },
-        { url: 'https://ipinfo.io/json', parse: d => ({ code: (d.country || '').toUpperCase(), tz: d.timezone || '' }) },
-        { url: 'https://ip-api.com/json/?fields=status,countryCode,timezone', parse: d => d.status === 'success' ? { code: (d.countryCode || '').toUpperCase(), tz: d.timezone || '' } : null },
-        { url: 'https://ipwho.is/', parse: d => d.success !== false ? { code: (d.country_code || '').toUpperCase(), tz: d.timezone || '' } : null },
-        { url: 'https://freeipapi.com/api/json', parse: d => ({ code: (d.countryCode || '').toUpperCase(), tz: d.timeZones && d.timeZones[0] ? d.timeZones[0] : '' }) },
-        { url: 'https://api.ip.sb/geoip', parse: d => ({ code: (d.country_code || d.countryCode || '').toUpperCase(), tz: d.timezone || '' }) },
-        { url: 'https://ipapi.is/json/', parse: d => ({ code: (d.location && d.location.country_code) ? d.location.country_code.toUpperCase() : (d.country_code || '').toUpperCase(), tz: (d.location && d.location.timezone) ? d.location.timezone : (d.timezone || '') }) },
-        { url: 'https://get.geojs.io/v1/ip/geo.json', parse: d => ({ code: (d.country_code || d.country || '').toUpperCase(), tz: d.timezone || '' }) }
-    ];
-
-    async function hasRealInternet() {
-        const endpoints = [
-            'https://www.cloudflare.com/cdn-cgi/trace',
-            'https://api.ipify.org?format=json',
-            'https://httpbin.org/status/200',
-            'https://1.1.1.1/cdn-cgi/trace'
-        ];
-        for (const url of endpoints) {
-            try {
-                const controller = new AbortController();
-                const t = setTimeout(() => controller.abort(), 4000);
-                const r = await fetch(url, { method: 'GET', cache: 'no-store', mode: 'cors', signal: controller.signal });
-                clearTimeout(t);
-                if (r.ok || r.status === 204 || r.status === 200) return true;
-            } catch (e) {}
-        }
-        return false;
+    async function fetchText(url, ms) {
+        const controller = new AbortController();
+        const t = setTimeout(() => controller.abort(), ms);
+        try {
+            const r = await fetch(url, { method: 'GET', cache: 'no-store', mode: 'cors', signal: controller.signal });
+            clearTimeout(t);
+            if (!r.ok) return null;
+            return await r.text();
+        } catch (e) { clearTimeout(t); return null; }
     }
 
-    async function fetchWithTimeout(url, ms = 5000) {
+    async function fetchJson(url, ms) {
         const controller = new AbortController();
         const t = setTimeout(() => controller.abort(), ms);
         try {
@@ -201,208 +208,201 @@
             clearTimeout(t);
             if (!r.ok) return null;
             return await r.json();
-        } catch (e) {
-            clearTimeout(t);
-            return null;
-        }
+        } catch (e) { clearTimeout(t); return null; }
     }
 
     async function detectUserCountry() {
         userCountryCode = '';
         userTimezone = '';
-        for (let i = 0; i < GEO_APIS.length; i++) {
-            const api = GEO_APIS[i];
-            try {
-                const data = await fetchWithTimeout(api.url, 4500);
-                if (!data) continue;
-                const parsed = api.parse(data);
-                if (!parsed) continue;
-                const code = parsed.code || '';
-                const tz = parsed.tz || '';
-                if (code && /^[A-Z]{2}$/.test(code)) {
-                    userCountryCode = code;
-                    if (tz) userTimezone = tz;
-                    // browser timezone as extra check
-                    try {
-                        const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-                        if (!userTimezone && browserTz) userTimezone = browserTz;
-                    } catch (e) {}
-                    return userCountryCode;
-                }
-            } catch (e) {}
-        }
-        // Cloudflare trace fallback (text)
+
+        // 1) Browser timezone (তৎক্ষণাৎ)
         try {
-            const controller = new AbortController();
-            const t = setTimeout(() => controller.abort(), 4000);
-            const r = await fetch('https://www.cloudflare.com/cdn-cgi/trace', { cache: 'no-store', signal: controller.signal });
-            clearTimeout(t);
-            const text = await r.text();
-            const match = text.match(/loc=([A-Z]{2})/i);
-            if (match) {
-                userCountryCode = match[1].toUpperCase();
+            userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+        } catch (e) {}
+
+        // 2) Cloudflare (সবচেয়ে নির্ভরযোগ্য, CORS ঠিক)
+        try {
+            const text = await fetchText('https://www.cloudflare.com/cdn-cgi/trace', 4000);
+            if (text) {
+                const m = text.match(/loc=([A-Z]{2})/i);
+                if (m) userCountryCode = m[1].toUpperCase();
             }
         } catch (e) {}
-        // always try browser timezone
-        try {
-            const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-            if (browserTz) userTimezone = browserTz;
-        } catch (e) {}
+
+        // 3) আরও API (parallel)
+        if (!userCountryCode || userCountryCode === 'XX') {
+            const apis = [
+                { url: 'https://ipapi.co/json/', get: d => [(d.country_code || '').toUpperCase(), d.timezone || ''] },
+                { url: 'https://ipwho.is/', get: d => d.success !== false ? [(d.country_code || '').toUpperCase(), d.timezone || ''] : null },
+                { url: 'https://get.geojs.io/v1/ip/geo.json', get: d => [(d.country_code || '').toUpperCase(), d.timezone || ''] },
+                { url: 'https://api.country.is/', get: d => [(d.country || '').toUpperCase(), ''] }
+            ];
+            const results = await Promise.all(apis.map(async (a) => {
+                try {
+                    const d = await fetchJson(a.url, 3500);
+                    if (!d) return null;
+                    return a.get(d);
+                } catch (e) { return null; }
+            }));
+            for (const r of results) {
+                if (r && r[0] && /^[A-Z]{2}$/.test(r[0]) && r[0] !== 'XX') {
+                    userCountryCode = r[0];
+                    if (r[1]) userTimezone = r[1];
+                    break;
+                }
+            }
+        }
+
+        // 4) timezone না পেলে আবার browser
+        if (!userTimezone) {
+            try { userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
+        }
+
         return userCountryCode;
     }
 
-    function showCountryBlock(allowed, userCode, extraMsg) {
+    function hideAllBlockScreens() {
+        ['countryBlockScreen', 'timezoneBlockScreen', 'taskOfflineScreen'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = 'none';
+        });
+    }
+
+    function showCountryBlock(userCode, extraMsg) {
+        hideAllBlockScreens();
         const screen = document.getElementById('countryBlockScreen');
-        const listEl = document.getElementById('allowedCountriesList');
+        if (!screen) return;
         const userEl = document.getElementById('userCountryDisplay');
-        const tzEl = document.getElementById('userTimezoneDisplay');
         const statusEl = document.getElementById('countryCheckStatus');
         const titleEl = document.getElementById('countryBlockTitle');
         const iconEl = document.getElementById('countryBlockIcon');
-        if (!screen) return;
+        const listEl = document.getElementById('allowedCountriesList');
+        const btn = document.getElementById('countryRetryBtn');
 
         if (listEl) {
-            listEl.innerHTML = '🇦🇿 Azerbaijan<br>টাইমজোন: Asia/Baku (UTC+4)';
+            listEl.innerHTML = (allowedCountries || []).map(c => (COUNTRY_NAMES[c] || c)).join('<br>') || '—';
         }
         if (userEl) userEl.innerText = COUNTRY_NAMES[userCode] || userCode || 'অজানা';
+        if (titleEl) titleEl.innerText = 'এই দেশ থেকে প্রবেশাধিকার নেই';
+        if (iconEl) iconEl.innerText = '🌍';
+        if (statusEl) statusEl.innerText = extraMsg || 'শুধু অনুমোদিত দেশের ব্যবহারকারীরা এই পোর্টাল ব্যবহার করতে পারবেন।';
+        if (btn) { btn.style.display = ''; btn.disabled = false; btn.innerHTML = '🔄 আবার চেষ্টা করুন'; }
+        screen.style.display = 'flex';
+        const cont = document.querySelector('.container');
+        if (cont) cont.style.display = 'none';
+    }
+
+    function showTimezoneBlock() {
+        hideAllBlockScreens();
+        const screen = document.getElementById('timezoneBlockScreen');
+        if (!screen) return;
+        const tzEl = document.getElementById('tzUserDisplay');
         if (tzEl) tzEl.innerText = userTimezone || 'অজানা';
-        if (titleEl) titleEl.innerText = 'এই দেশ/সময় থেকে কাজ করা যাবে না';
-        if (iconEl) iconEl.innerText = '🔴';
-        if (statusEl) statusEl.innerText = extraMsg || '';
-        const btn = document.getElementById('countryRetryBtn');
-        if (btn) {
-            btn.disabled = false;
-            btn.innerHTML = '🔄 আবার চেষ্টা করুন';
-        }
         screen.style.display = 'flex';
         const cont = document.querySelector('.container');
         if (cont) cont.style.display = 'none';
     }
 
     function hideCountryBlock() {
-        const screen = document.getElementById('countryBlockScreen');
-        if (screen) screen.style.display = 'none';
+        hideAllBlockScreens();
         const cont = document.querySelector('.container');
         if (cont) cont.style.display = '';
     }
 
-    function isTimezoneAllowed() {
-        // browser local offset (minutes)
-        let browserOffsetOk = false;
-        try {
-            const offsetMin = -new Date().getTimezoneOffset(); // e.g. +240 for UTC+4
-            if (offsetMin === 240 || offsetMin === 180) browserOffsetOk = true; // +4 or +3 (some edge)
-        } catch (e) {}
-
-        if (!userTimezone) return browserOffsetOk; // fallback to browser offset
-
-        const tz = (userTimezone || '').toLowerCase();
-        if (ALLOWED_TIMEZONES.some(t => t.toLowerCase() === tz)) return true;
-        if (tz.includes('baku') || tz.includes('azerbaijan')) return true;
-
-        // UTC offset from timezone name
-        try {
-            const now = new Date();
-            const formatter = new Intl.DateTimeFormat('en-US', { timeZone: userTimezone, timeZoneName: 'shortOffset' });
-            const parts = formatter.formatToParts(now);
-            const offsetPart = parts.find(p => p.type === 'timeZoneName');
-            if (offsetPart) {
-                const v = offsetPart.value;
-                if (v === 'GMT+4' || v === 'UTC+4' || v === '+04' || v === 'GMT+04' || v.includes('+4')) return true;
-            }
-        } catch (e) {}
-
-        return browserOffsetOk;
+    function showTaskOfflineScreen() {
+        hideAllBlockScreens();
+        const offline = document.getElementById('taskOfflineScreen');
+        if (offline) offline.style.display = 'flex';
+        const cont = document.querySelector('.container');
+        if (cont) cont.style.display = 'none';
     }
 
-    function isCountryAllowed() {
+    function hideTaskOfflineScreen() {
+        const offline = document.getElementById('taskOfflineScreen');
+        if (offline) offline.style.display = 'none';
+    }
+
+    function isTimezoneAllowed() {
+        try {
+            const offsetMin = -new Date().getTimezoneOffset();
+            if (offsetMin === 240) return true;
+        } catch (e) {}
+        const tz = (userTimezone || '').toLowerCase();
+        if (tz === 'asia/baku' || tz.includes('baku')) return true;
+        try {
+            const formatter = new Intl.DateTimeFormat('en-US', { timeZone: userTimezone || 'UTC', timeZoneName: 'shortOffset' });
+            const parts = formatter.formatToParts(new Date());
+            const offsetPart = parts.find(p => p.type === 'timeZoneName');
+            if (offsetPart && (offsetPart.value.includes('+4') || offsetPart.value.includes('+04'))) return true;
+        } catch (e) {}
+        return false;
+    }
+
+    function isCountryOk() {
         if (!userCountryCode) return false;
-        // শুধু AZ
-        const countryOk = userCountryCode === 'AZ';
-        const timeOk = isTimezoneAllowed();
-        // দুটোই লাগবে
-        return countryOk && timeOk;
+        if (!allowedCountries || !allowedCountries.length) return false;
+        if (allowedCountries.includes('ALL')) return true;
+        return allowedCountries.includes(userCountryCode);
+    }
+
+    function isFullyAllowed() {
+        return isCountryOk() && isTimezoneAllowed();
     }
 
     async function runFullCountryCheck(silent) {
         if (isCountryChecking) return false;
         isCountryChecking = true;
+
         const statusEl = document.getElementById('countryCheckStatus');
         const btn = document.getElementById('countryRetryBtn');
         const titleEl = document.getElementById('countryBlockTitle');
         const iconEl = document.getElementById('countryBlockIcon');
+        const screen = document.getElementById('countryBlockScreen');
+        const cont = document.querySelector('.container');
 
         if (!silent) {
-            if (btn) { btn.disabled = true; btn.innerHTML = '⏳ লোডিং হচ্ছে...'; }
-            if (statusEl) statusEl.innerText = 'অপেক্ষা করুন...';
+            hideAllBlockScreens();
             if (titleEl) titleEl.innerText = 'যাচাই করা হচ্ছে...';
             if (iconEl) iconEl.innerText = '⏳';
+            if (statusEl) statusEl.innerText = 'নেটওয়ার্ক ও লোকেশন যাচাই চলছে...';
+            if (btn) { btn.style.display = 'none'; btn.disabled = true; }
+            if (screen) screen.style.display = 'flex';
+            if (cont) cont.style.display = 'none';
         }
 
-        // 1. Network check (always silent for user)
-        const netOk = await hasRealInternet();
-        if (!netOk) {
-            if (!silent) {
-                if (statusEl) statusEl.innerText = 'ইন্টারনেট সংযোগ নেই। নেট চেক করুন।';
-                if (titleEl) titleEl.innerText = 'নেটওয়ার্ক সমস্যা';
-                if (iconEl) iconEl.innerText = '📡';
-                if (btn) { btn.disabled = false; btn.innerHTML = '🔄 আবার চেষ্টা করুন'; }
-                const screen = document.getElementById('countryBlockScreen');
-                if (screen) {
-                    screen.style.display = 'flex';
-                    const cont = document.querySelector('.container');
-                    if (cont) cont.style.display = 'none';
-                }
+        try {
+            await detectUserCountry();
+            const userEl = document.getElementById('userCountryDisplay');
+            if (userEl) userEl.innerText = COUNTRY_NAMES[userCountryCode] || userCountryCode || 'অজানা';
+
+            if (!isCountryOk()) {
+                countryAlreadyPassed = false;
+                showCountryBlock(userCountryCode, !userCountryCode
+                    ? 'লোকেশন সনাক্ত করা যায়নি। ইন্টারনেট সংযোগ যাচাই করে পুনরায় চেষ্টা করুন।'
+                    : 'আপনার দেশ অনুমোদিত তালিকায় নেই। শুধু নির্ধারিত দেশের ব্যবহারকারীরা প্রবেশ করতে পারবেন।');
+                isCountryChecking = false;
+                return false;
             }
-            isCountryChecking = false;
-            return false;
-        }
 
-        // 2. Country detect
-        await detectUserCountry();
-
-        if (!userCountryCode) {
-            if (!silent) {
-                if (statusEl) statusEl.innerText = 'লোকেশন/সময় পাওয়া যায়নি। আবার চেষ্টা করুন।';
-                if (titleEl) titleEl.innerText = 'যাচাই ব্যর্থ';
-                if (iconEl) iconEl.innerText = '🌍';
-                if (btn) { btn.disabled = false; btn.innerHTML = '🔄 আবার চেষ্টা করুন'; }
-                showCountryBlock(allowedCountries, '', 'লোকেশন/সময় পাওয়া যায়নি');
+            if (!isTimezoneAllowed()) {
+                countryAlreadyPassed = false;
+                showTimezoneBlock();
+                isCountryChecking = false;
+                return false;
             }
-            isCountryChecking = false;
-            return false;
-        }
 
-        // 3. Allowed check (দেশ + টাইমজোন দুটোই)
-        if (isCountryAllowed()) {
+            countryAlreadyPassed = true;
             if (!silent) {
-                if (statusEl) statusEl.innerText = '';
                 if (titleEl) titleEl.innerText = 'সফল!';
                 if (iconEl) iconEl.innerText = '✅';
-                setTimeout(() => {
-                    hideCountryBlock();
-                    isCountryChecking = false;
-                }, 400);
-            } else {
-                hideCountryBlock();
-                isCountryChecking = false;
+                if (statusEl) statusEl.innerText = '';
+                await new Promise(r => setTimeout(r, 400));
             }
+            hideCountryBlock();
+            isCountryChecking = false;
             return true;
-        } else {
-            let reason = '';
-            if (userCountryCode !== 'AZ') reason = 'দেশ মিলেনি (শুধু Azerbaijan)';
-            else if (!isTimezoneAllowed()) reason = 'টাইমজোন মিলেনি (Asia/Baku লাগবে)';
-            else reason = 'যাচাই ব্যর্থ';
-
-            if (!silent) {
-                if (statusEl) statusEl.innerText = reason;
-                if (titleEl) titleEl.innerText = 'এই দেশ/সময় থেকে কাজ করা যাবে না';
-                if (iconEl) iconEl.innerText = '🔴';
-                if (btn) { btn.disabled = false; btn.innerHTML = '🔄 আবার চেষ্টা করুন'; }
-                showCountryBlock(allowedCountries, userCountryCode, reason);
-            } else {
-                showCountryBlock(allowedCountries, userCountryCode, reason);
-            }
+        } catch (e) {
+            showCountryBlock(userCountryCode || '', 'যাচাই প্রক্রিয়ায় সমস্যা হয়েছে। অনুগ্রহ করে পুনরায় চেষ্টা করুন।');
             isCountryChecking = false;
             return false;
         }
@@ -410,27 +410,37 @@
 
     async function retryCountryCheck() {
         await runFullCountryCheck(false);
+        if (countryAlreadyPassed) {
+            const savedPhone = localStorage.getItem("user_phone");
+            if (savedPhone) {
+                currentPhone = savedPhone;
+                checkDailyReset();
+                showDashboard();
+                registerActiveUser();
+            }
+        }
     }
 
-    // Background check every 5s — completely silent, user notices nothing
+    // প্রতি ৫ সেকেন্ড ব্যাকগ্রাউন্ডে IP + TimeZone চেক
     let bgCheckTimer = null;
-    let countryAlreadyPassed = false;
     function startBackgroundChecks() {
         if (bgCheckTimer) return;
         bgCheckTimer = setInterval(async () => {
             if (isCountryChecking) return;
             try {
-                const netOk = await hasRealInternet();
-                if (!netOk) return;
                 await detectUserCountry();
-                if (isCountryAllowed()) {
+                if (isFullyAllowed()) {
                     countryAlreadyPassed = true;
+                    // offline স্ক্রিন চালু থাকলে টানব না
+                    const offline = document.getElementById('taskOfflineScreen');
+                    if (offline && offline.style.display === 'flex') return;
                     hideCountryBlock();
-                    const cont = document.querySelector('.container');
-                    if (cont && cont.style.display === 'none') cont.style.display = '';
+                } else if (!isCountryOk()) {
+                    countryAlreadyPassed = false;
+                    showCountryBlock(userCountryCode || '', 'দেশ যাচাই ব্যর্থ — অনুমোদিত দেশ থেকে প্রবেশ করুন।');
                 } else {
                     countryAlreadyPassed = false;
-                    showCountryBlock(allowedCountries, userCountryCode || '', 'দেশ বা সময় মিলেনি');
+                    showTimezoneBlock();
                 }
             } catch (e) {}
         }, 5000);
@@ -451,26 +461,52 @@
     }
 
     window.onload = async function() {
-        // পেজ লোড হওয়ার সাথে সাথেই দেশ+টাইমজোন চেক — সব দেশ থেকে আর ওপেন হবে না
-        const cont = document.querySelector('.container');
-        if (cont) cont.style.display = 'none';
-
-        // সাথে সাথে ব্যাকগ্রাউন্ড চেক শুরু (প্রতি ৫ সেকেন্ড)
         startBackgroundChecks();
 
-        // প্রথম চেক (silent না — ফেইল হলে ব্লক স্ক্রিন দেখাবে)
-        const ok = await runFullCountryCheck(false);
-        if (ok) {
-            if (cont) cont.style.display = '';
-            const savedPhone = localStorage.getItem("user_phone");
-            if (savedPhone) {
-                currentPhone = savedPhone;
-                checkDailyReset();
-                showDashboard();
-                registerActiveUser();
+        // কাজ অফ কিনা আগে চেক (পেজ খোলার সাথে সাথে)
+        try {
+            webDB.ref("taskSettings").once("value", async (snap) => {
+                const data = snap.val() || {};
+                if (Array.isArray(data.allowedCountries) && data.allowedCountries.length) {
+                    allowedCountries = data.allowedCountries;
+                }
+                if (data.taskEnabled === false) {
+                    showTaskOfflineScreen();
+                    // offline থাকলেও background চলবে; চালু হলে রিফ্রেশ করতে হবে
+                    return;
+                }
+                try {
+                    const ok = await runFullCountryCheck(false);
+                    if (ok) {
+                        const savedPhone = localStorage.getItem("user_phone");
+                        if (savedPhone) {
+                            currentPhone = savedPhone;
+                            checkDailyReset();
+                            showDashboard();
+                            registerActiveUser();
+                        }
+                    }
+                } catch (e) {
+                    showCountryBlock('', 'যাচাই প্রক্রিয়ায় সমস্যা হয়েছে। পুনরায় চেষ্টা করুন।');
+                }
+            });
+        } catch (e) {
+            // firebase fail হলেও দেশ চেক চালাও
+            try {
+                const ok = await runFullCountryCheck(false);
+                if (ok) {
+                    const savedPhone = localStorage.getItem("user_phone");
+                    if (savedPhone) {
+                        currentPhone = savedPhone;
+                        checkDailyReset();
+                        showDashboard();
+                        registerActiveUser();
+                    }
+                }
+            } catch (e2) {
+                showCountryBlock('', 'যাচাই প্রক্রিয়ায় সমস্যা হয়েছে। পুনরায় চেষ্টা করুন।');
             }
         }
-        // ok না হলে ব্লক স্ক্রিন আগে থেকেই দেখানো হয়েছে
     };
 
     function loginUser() {
@@ -542,12 +578,14 @@
             totalLimit = parseInt(data.totalLimit) || 0;
             currentVisits = parseInt(data.currentVisits) || 0;
             verifyCode = String(data.verifyCode || "").trim();
-            const taskEnabled = data.taskEnabled !== false; // default true
+            const taskEnabled = data.taskEnabled !== false;
 
-            // শুধু Azerbaijan ফিক্সড
-            allowedCountries = ['AZ'];
+            if (Array.isArray(data.allowedCountries) && data.allowedCountries.length) {
+                allowedCountries = data.allowedCountries;
+            } else {
+                allowedCountries = ['AZ'];
+            }
 
-            // ব্যাকগ্রাউন্ড চেক সবসময় চলুক
             startBackgroundChecks();
 
             document.getElementById("adminTotalTasks").innerText = totalLimit;
@@ -555,11 +593,22 @@
             document.getElementById("remainingCount").innerText = remaining;
 
             if (!taskEnabled) {
-                disableTaskSystem("অ্যাডমিন কাজ বন্ধ করে রেখেছে। পরে আবার চেষ্টা করুন।");
-            } else if (!targetUrl || !verifyCode) {
-                disableTaskSystem("বর্তমানে কাজ বন্ধ রয়েছে।");
+                showTaskOfflineScreen();
+                return;
+            } else {
+                hideTaskOfflineScreen();
+                if (countryAlreadyPassed) {
+                    const cont = document.querySelector('.container');
+                    if (cont) cont.style.display = '';
+                }
+            }
+
+            if (!targetUrl) {
+                disableTaskSystem("বর্তমানে কোনো লিংক সেট করা নেই — Not Available");
+            } else if (!verifyCode) {
+                disableTaskSystem("ভেরিফিকেশন কোড সেট করা নেই — Not Available");
             } else if (totalLimit <= 0 || currentVisits >= totalLimit) {
-                disableTaskSystem("আজকের সর্বমোট কাজের সীমা সম্পন্ন হয়েছে।");
+                disableTaskSystem("আজকের কাজের লিমিট শেষ। তাই আর আজ কাজ করতে পারবেন না!");
             } else {
                 enableTaskSystem();
                 generateMathCaptcha();
@@ -624,6 +673,7 @@
             document.getElementById("loadingSection").classList.add("hidden");
             window.open(targetUrl, "_blank");
             isTimerFinished = false;
+            earlyReturnLogged = false;
             document.getElementById("timerSection").classList.remove("hidden");
             document.getElementById("verifySection").classList.add("hidden");
             taskStartTime = Date.now();
@@ -648,6 +698,32 @@
                 if (verifySec) { verifySec.classList.remove("hidden"); verifySec.style.display = "block"; }
             }
         }, 1000);
+    }
+
+    // সময় শেষ হওয়ার আগে পোর্টালে ফিরে এলে লগ
+    let earlyReturnLogged = false;
+    document.addEventListener("visibilitychange", function() {
+        if (document.visibilityState === "visible" && timerInterval && !isTimerFinished && currentPhone && !earlyReturnLogged) {
+            earlyReturnLogged = true;
+            logEarlyReturn(currentPhone);
+        }
+    });
+    window.addEventListener("focus", function() {
+        if (timerInterval && !isTimerFinished && currentPhone && !earlyReturnLogged) {
+            earlyReturnLogged = true;
+            logEarlyReturn(currentPhone);
+        }
+    });
+
+    function logEarlyReturn(phone) {
+        if (!phone || !webDB) return;
+        const today = new Date().toDateString();
+        const ref = webDB.ref("earlyReturns/" + phone);
+        ref.once("value", (snap) => {
+            const d = snap.val() || {};
+            const count = (d.date === today) ? ((d.count || 0) + 1) : 1;
+            ref.set({ phone: phone, count: count, date: today, lastTime: firebase.database.ServerValue.TIMESTAMP });
+        });
     }
 
     function playSuccessSound() {
