@@ -13,7 +13,7 @@
         :root { --primary-color: #2563eb; --primary-hover: #1d4ed8; --bg-color: #f1f5f9; --card-bg: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --success-color: #10b981; --danger-color: #ef4444; --border-color: #e2e8f0; --accent-glow: rgba(37, 99, 235, 0.08); }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Hind Siliguri', 'Plus Jakarta Sans', sans-serif; }
         body { background-color: var(--bg-color); background-image: radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.05) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.05) 0px, transparent 50%); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px 15px; }
-        .container { width: 100%; max-width: 440px; background: var(--card-bg); border-radius: 20px; box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.03); border: 1px solid rgba(226, 232, 240, 0.8); overflow: hidden; }
+        .container { width: 100%; max-width: 440px; background: var(--card-bg); border-radius: 20px; box-shadow: 0 20px 50px -12px rgba(15, 23, 42, 0.1), 0 0 0 1px rgba(226, 232, 240, 0.6); border: 1px solid rgba(226, 232, 240, 0.8); overflow: hidden; }
         .header { background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-bottom: 1px solid var(--border-color); padding: 24px 20px 20px; text-align: center; }
         .header .badge { display: inline-flex; align-items: center; gap: 6px; background: #eff6ff; color: var(--primary-color); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 10px; border: 1px solid #dbeafe; }
         .header h2 { font-size: 22px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; justify-content: center; gap: 8px; }
@@ -23,13 +23,11 @@
         .status-dot { width: 8px; height: 8px; background-color: var(--success-color); border-radius: 50%; display: inline-block; box-shadow: 0 0 8px rgba(16, 185, 129, 0.6); }
         .logout-btn { background: #fff; color: var(--danger-color); border: 1px solid #fecaca; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; }
         .logout-btn:hover { background: var(--danger-color); color: white; border-color: var(--danger-color); }
-        .user-stats-card { background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 18px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); }
+        .user-stats-card { background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 1.5px solid #e2e8f0; border-radius: 14px; padding: 18px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04); }
         .stats-box { flex: 1; text-align: center; }
         .stats-label { display: block; font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 4px; }
         .stats-value { font-size: 22px; font-weight: 700; color: #2563eb; }
         .stats-divider { width: 1px; height: 35px; background-color: #cbd5e1; margin: 0 10px; }
-        .remaining-box { background: #ecfdf5; border: 1.5px solid #a7f3d0; border-radius: 12px; padding: 12px 16px; text-align: center; margin-bottom: 18px; font-size: 14px; font-weight: 600; color: #065f46; }
-        .remaining-box span { font-size: 18px; font-weight: 800; color: #059669; }
         .content { padding: 24px 20px; }
         .form-group { margin-bottom: 18px; text-align: left; }
         .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text-main); margin-bottom: 8px; }
@@ -37,10 +35,10 @@
         .input-icon { position: absolute; left: 14px; color: #94a3b8; font-size: 15px; }
         input { width: 100%; padding: 12px 14px 12px 40px; border: 1.5px solid var(--border-color); border-radius: 10px; font-size: 14px; outline: none; background-color: #fff; color: var(--text-main); }
         input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 4px var(--accent-glow); }
-        .btn { width: 100%; padding: 13px; background: var(--primary-color); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15); }
+        .btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; box-shadow: 0 6px 18px rgba(37, 99, 235, 0.28); }
         .btn:hover { background: var(--primary-hover); }
         .btn:disabled { opacity: 0.65; cursor: not-allowed; box-shadow: none; }
-        .btn-success { background: var(--success-color); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15); }
+        .btn-success { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 6px 18px rgba(16, 185, 129, 0.28); }
         .btn-success:hover { background: #059669; }
         .captcha-card { background: #f8fafc; border: 1.5px dashed #cbd5e1; padding: 18px; border-radius: 12px; text-align: center; margin-bottom: 20px; }
         .captcha-title { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 5px; }
@@ -56,9 +54,66 @@
         .instruction-box { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; padding: 12px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 15px; line-height: 1.5; }
         .loading-overlay { text-align: center; padding: 30px 10px; }
         .loading-spinner { font-size: 32px; color: var(--primary-color); margin-bottom: 12px; }
+    
+        /* Premium Fixed Timer Bar */
+        #fixedTimerBar {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 9998;
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #3b82f6 100%);
+            color: #fff;
+            padding: 14px 18px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 15px;
+            box-shadow: 0 4px 25px rgba(37, 99, 235, 0.4);
+            letter-spacing: 0.3px;
+        }
+        #fixedTimerBar .timer-sec {
+            font-size: 20px;
+            background: rgba(255,255,255,0.2);
+            padding: 3px 14px;
+            border-radius: 8px;
+            margin-left: 8px;
+            font-weight: 800;
+            display: inline-block;
+            min-width: 52px;
+        }
+        #fixedTimerBar.finished {
+            background: linear-gradient(135deg, #047857 0%, #059669 50%, #10b981 100%);
+            box-shadow: 0 4px 25px rgba(16, 185, 129, 0.35);
+        }
+        body.has-fixed-timer { padding-top: 60px; }
+
+        .timer-finished-notice {
+            background: #ecfdf5;
+            border: 1.5px solid #a7f3d0;
+            color: #065f46;
+            padding: 16px 18px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            margin: 12px 0;
+            line-height: 1.6;
+        }
+        .timer-finished-notice strong {
+            display: block;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
     </style>
 </head>
 <body>
+
+<!-- Fixed Timer Bar -->
+<div id="fixedTimerBar">
+    <span>⏱</span>
+    <span id="fixedTimerText">অপেক্ষা করুন:</span>
+    <span class="timer-sec" id="fixedTimerCount">0</span> সেকেন্ড
+</div>
+
 
 <!-- Loading / Country Block Screen -->
 <div id="countryBlockScreen" style="display:flex; position:fixed; inset:0; background:#0f172a; z-index:9999; color:#fff; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center;">
@@ -135,7 +190,17 @@
                     <span class="stats-value" id="userCompletedTasks">0</span>
                 </div>
             </div>
-            <div class="remaining-box" id="remainingBox">বাকি আছে <span id="remainingCount">0</span> টা কাজ</div>
+            <div class="user-stats-card" style="margin-bottom:16px;">
+                <div class="stats-box">
+                    <span class="stats-label"><i class="fa-solid fa-list"></i> বাকি কাজ</span>
+                    <span class="stats-value" id="remainingCount" style="color:#059669;">0</span>
+                </div>
+                <div class="stats-divider"></div>
+                <div class="stats-box">
+                    <span class="stats-label"><i class="fa-solid fa-clock"></i> ঘণ্টার বাকি</span>
+                    <span class="stats-value" id="hourlyRemaining" style="color:#2563eb;">—</span>
+                </div>
+            </div>
             <div id="captchaBox" class="captcha-card">
                 <div class="captcha-title"><i class="fa-solid fa-lock"></i> নিরাপত্তা যাচাইকরণের জন্য উত্তর দিন:</div>
                 <div class="captcha-math" id="mathQuestion">0 + 0 = ?</div>
@@ -150,6 +215,10 @@
             <div id="timerSection" class="hidden" style="text-align: center;">
                 <div class="instruction-box"><i class="fa-solid fa-info-circle"></i> নতুন ট্যাবে ওয়েবসাইট খোলা হয়েছে। সেখানে <strong>থাকুন</strong> এবং টাইমার শেষ হওয়া পর্যন্ত অপেক্ষা করুন। তারপর এখানে ফিরে এসে ভেরিফিকেশন কোড দিন।</div>
                 <div class="timer-badge"><i class="fa-solid fa-stopwatch"></i> অপেক্ষা করুন: <span id="timerCount">0</span> সেকেন্ড</div>
+            </div>
+            <div id="timerFinishedNotice" class="hidden timer-finished-notice">
+                <strong>⏰ টাইম শেষ হয়েছে!</strong>
+                অন্য ট্যাব বন্ধ করে নিচের ভেরিফিকেশন কোড দিয়ে যাচাই করুন।
             </div>
             <div id="verifySection" class="hidden" style="margin-top: 15px;">
                 <div class="form-group">
@@ -171,9 +240,90 @@
     const mainDB = mainApp.database();
     const webDB = webControlApp.database();
 
-    let currentPhone = "", targetUrl = "", requiredTime = 0, rewardPoints = 0, totalLimit = 0, currentVisits = 0, verifyCode = "";
-    let num1 = 0, num2 = 0, correctAnswer = 0, taskStartTime = 0, timerInterval = null, statusTimeout = null, isTimerFinished = false, activeUserHeartbeat = null;
+    let currentPhone = "", targetUrl = "", requiredTime = 0, rewardPoints = 0, totalLimit = 0, currentVisits = 0, verifyCode = "", hourlyLimit = 0;
+    let num1 = 0, num2 = 0, correctAnswer = 0, timerInterval = null, statusTimeout = null, isTimerFinished = false, activeUserHeartbeat = null;
     const TAB_LOCK_KEY = 'active_task_tab_timestamp';
+
+    const ORIGINAL_TITLE = document.title || "Web Visit Portal";
+
+    // ===== Hourly Limit =====
+    function getCurrentHourKey() {
+        const d = new Date();
+        return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0') + '-' + String(d.getHours()).padStart(2,'0');
+    }
+    function getHourlyCompleted() {
+        if (!currentPhone) return 0;
+        try {
+            const raw = localStorage.getItem('hourly_data_' + currentPhone);
+            if (!raw) return 0;
+            const data = JSON.parse(raw);
+            if (data.hourKey === getCurrentHourKey()) return data.count || 0;
+            return 0;
+        } catch(e) { return 0; }
+    }
+    function setHourlyCompleted(count) {
+        if (!currentPhone) return;
+        localStorage.setItem('hourly_data_' + currentPhone, JSON.stringify({ hourKey: getCurrentHourKey(), count: count }));
+    }
+    function incrementHourlyCompleted() {
+        setHourlyCompleted(getHourlyCompleted() + 1);
+        updateHourlyUI();
+    }
+    function updateHourlyUI() {
+        const span = document.getElementById('hourlyRemaining');
+        if (!span) return;
+        if (hourlyLimit <= 0) {
+            span.innerText = 'সেট নেই';
+            span.style.color = '#ef4444';
+            return;
+        }
+        const left = Math.max(0, hourlyLimit - getHourlyCompleted());
+        span.innerText = left;
+        span.style.color = left <= 0 ? '#ef4444' : '#2563eb';
+    }
+
+    // ===== Fixed Timer =====
+    function showFixedTimer(seconds) {
+        const bar = document.getElementById('fixedTimerBar');
+        if (bar) {
+            bar.style.display = 'block';
+            bar.classList.remove('finished');
+            document.body.classList.add('has-fixed-timer');
+        }
+        const countEl = document.getElementById('fixedTimerCount');
+        const textEl = document.getElementById('fixedTimerText');
+        if (countEl) countEl.innerText = seconds;
+        if (textEl) textEl.innerText = 'অপেক্ষা করুন:';
+        document.title = '⏱ ' + seconds + 's | অপেক্ষা করুন';
+    }
+    function updateFixedTimer(seconds) {
+        const countEl = document.getElementById('fixedTimerCount');
+        if (countEl) countEl.innerText = seconds;
+        document.title = '⏱ ' + seconds + 's | অপেক্ষা করুন';
+    }
+    function finishFixedTimer() {
+        const bar = document.getElementById('fixedTimerBar');
+        if (bar) {
+            bar.classList.add('finished');
+            bar.style.display = 'block';
+            document.body.classList.add('has-fixed-timer');
+        }
+        const textEl = document.getElementById('fixedTimerText');
+        const countEl = document.getElementById('fixedTimerCount');
+        if (textEl) textEl.innerText = '⏰ টাইম শেষ! ট্যাব বন্ধ করে ভেরিফাই করুন';
+        if (countEl) countEl.innerText = '✓';
+        document.title = '✅ টাইম শেষ! ভেরিফাই করুন';
+    }
+    function hideFixedTimer() {
+        const bar = document.getElementById('fixedTimerBar');
+        if (bar) {
+            bar.style.display = 'none';
+            bar.classList.remove('finished');
+        }
+        document.body.classList.remove('has-fixed-timer');
+        document.title = ORIGINAL_TITLE;
+    }
+
 
     // ===== শুধু Azerbaijan — Country + Timezone Restriction =====
     let userCountryCode = '';
@@ -675,14 +825,18 @@
             totalLimit = parseInt(data.totalLimit) || 0;
             currentVisits = parseInt(data.currentVisits) || 0;
             verifyCode = String(data.verifyCode || "").trim();
+            hourlyLimit = parseInt(data.hourlyLimit) || 0;
 
             startBackgroundChecks();
 
             document.getElementById("adminTotalTasks").innerText = totalLimit || 0;
             const remaining = Math.max(0, (totalLimit || 0) - (currentVisits || 0));
             document.getElementById("remainingCount").innerText = remaining;
+            updateHourlyUI();
 
-            if (!targetUrl) {
+            if (hourlyLimit <= 0) {
+                disableTaskSystem("📢 অফিসিয়াল নোটিশ: কাজের ঘণ্টার লিমিট সেট করা হয়নি। অ্যাডমিন এখনো প্রতি ঘণ্টায় কত কাজ করা যাবে তা নির্ধারণ করেননি।");
+            } else if (!targetUrl) {
                 disableTaskSystem("বর্তমানে কোনো লিংক সেট করা নেই — Not Available");
             } else if (!verifyCode) {
                 disableTaskSystem("ভেরিফিকেশন কোড সেট করা নেই — Not Available");
@@ -728,6 +882,15 @@
     }
 
     function startVisitTask() {
+        if (hourlyLimit <= 0) {
+            showStatus("📢 অফিসিয়াল নোটিশ: কাজের ঘণ্টার লিমিট সেট করা হয়নি।", "danger");
+            return;
+        }
+        if (getHourlyCompleted() >= hourlyLimit) {
+            showStatus("এই ঘণ্টার কাজের লিমিট শেষ হয়ে গেছে। পরের ঘণ্টায় আবার চেষ্টা করুন।", "danger");
+            updateHourlyUI();
+            return;
+        }
         if (totalLimit <= 0 || currentVisits >= totalLimit) {
             showStatus("কাজের সীমা শেষ হয়ে গেছে। আর কাজ করা যাবে না।", "danger");
             return;
@@ -747,6 +910,8 @@
         document.getElementById("captchaBox").classList.add("hidden");
         document.getElementById("visitBtn").classList.add("hidden");
         document.getElementById("loadingSection").classList.remove("hidden");
+        document.getElementById("timerFinishedNotice").classList.add("hidden");
+        hideFixedTimer();
         localStorage.setItem(TAB_LOCK_KEY, Date.now().toString());
         setTimeout(() => {
             document.getElementById("loadingSection").classList.add("hidden");
@@ -755,7 +920,6 @@
             earlyReturnLogged = false;
             document.getElementById("timerSection").classList.remove("hidden");
             document.getElementById("verifySection").classList.add("hidden");
-            taskStartTime = Date.now();
             startTimer(requiredTime);
         }, 3000);
     }
@@ -765,17 +929,22 @@
         timerLeftRemaining = seconds;
         const timerCount = document.getElementById("timerCount");
         if (timerCount) timerCount.innerText = left;
+        showFixedTimer(left);
         if (timerInterval) clearInterval(timerInterval);
         timerInterval = setInterval(() => {
             left--;
             timerLeftRemaining = left;
             if (timerCount) timerCount.innerText = left;
+            updateFixedTimer(left);
             if (left <= 0) {
                 clearInterval(timerInterval);
                 timerInterval = null;
                 timerLeftRemaining = 0;
                 isTimerFinished = true;
                 document.getElementById("timerSection").classList.add("hidden");
+                finishFixedTimer();
+                const finishedNotice = document.getElementById("timerFinishedNotice");
+                if (finishedNotice) finishedNotice.classList.remove("hidden");
                 const verifySec = document.getElementById("verifySection");
                 if (verifySec) { verifySec.classList.remove("hidden"); verifySec.style.display = "block"; }
             }
@@ -844,6 +1013,8 @@
         if (!userCode) { showStatus("ভেরিফিকেশন কোড দিন।", "danger"); return; }
         if (userCode !== verifyCode) { showStatus("ভুল কোড! সঠিক ভেরিফিকেশন কোড দিন।", "danger"); return; }
         if (currentVisits >= totalLimit) { showStatus("কাজের সীমা শেষ হয়ে গেছে।", "danger"); return; }
+        if (hourlyLimit <= 0) { showStatus("📢 অফিসিয়াল নোটিশ: কাজের ঘণ্টার লিমিট সেট করা হয়নি।", "danger"); return; }
+        if (getHourlyCompleted() >= hourlyLimit) { showStatus("এই ঘণ্টার কাজের লিমিট শেষ হয়ে গেছে।", "danger"); return; }
         setButtonLoading(verifyBtn, true, "যাচাই করা হচ্ছে...");
         codeInput.disabled = true;
         mainDB.ref("users/" + currentPhone + "/points").transaction((points) => {
@@ -861,6 +1032,7 @@
                 webDB.ref("userStats/" + currentPhone).set({ phone: currentPhone, completed: newCount, lastCompleted: firebase.database.ServerValue.TIMESTAMP });
                 webDB.ref("claimHistory").push({ phone: currentPhone, points: rewardPoints, time: firebase.database.ServerValue.TIMESTAMP });
                 webDB.ref("taskSettings/currentVisits").transaction((v) => (v || 0) + 1);
+                incrementHourlyCompleted();
                 playSuccessSound();
                 triggerConfetti();
                 showStatus("অভিনন্দন! +" + rewardPoints + " পয়েন্ট যোগ করা হয়েছে।", "success");
@@ -885,11 +1057,12 @@
     function resetTaskUI() {
         if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
         localStorage.removeItem(TAB_LOCK_KEY);
-        taskStartTime = 0;
         isTimerFinished = false;
+        hideFixedTimer();
         document.getElementById("captchaBox").classList.remove("hidden");
         document.getElementById("timerSection").classList.add("hidden");
         document.getElementById("loadingSection").classList.add("hidden");
+        document.getElementById("timerFinishedNotice").classList.add("hidden");
         const verifySec = document.getElementById("verifySection");
         verifySec.classList.add("hidden");
         verifySec.style.display = "";
@@ -911,9 +1084,11 @@
     }
 
     function disableTaskSystem(msg) {
+        hideFixedTimer();
         document.getElementById("captchaBox").classList.add("hidden");
         document.getElementById("loadingSection").classList.add("hidden");
         document.getElementById("timerSection").classList.add("hidden");
+        document.getElementById("timerFinishedNotice").classList.add("hidden");
         document.getElementById("verifySection").classList.add("hidden");
         const visitBtn = document.getElementById("visitBtn");
         visitBtn.classList.remove("hidden");
