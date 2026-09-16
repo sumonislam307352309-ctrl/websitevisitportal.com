@@ -704,6 +704,17 @@
             }
             updateAllowedCountriesUI();
 
+            // --- অ্যাডমিন ফোর্স লগআউট মনিটরিং (FORCE LOGOUT MONITOR) ---
+            if (data.logoutAllTimestamp && currentPhone) {
+                const lastLogout = localStorage.getItem("last_forced_logout_" + currentPhone);
+                if (!lastLogout || parseInt(lastLogout) < data.logoutAllTimestamp) {
+                    localStorage.setItem("last_forced_logout_" + currentPhone, data.logoutAllTimestamp);
+                    alert("অ্যাডমিন কর্তৃক আপনার সেশনটি শেষ করা হয়েছে। অনুগ্রহ করে পুনরায় লগইন করুন।");
+                    logoutUser();
+                    return;
+                }
+            }
+
             // কাজ অফ → অফিসিয়াল নোটিশ (স্থির থাকবে)
             if (data.taskEnabled === false) {
                 showTaskOfflineScreen();
@@ -805,6 +816,17 @@
                 allowedCountries = ['AZ'];
             }
             updateAllowedCountriesUI();
+
+            // --- অ্যাডমিন ফোর্স লগআউট মনিটরিং (FORCE LOGOUT MONITOR) ---
+            if (data.logoutAllTimestamp && currentPhone) {
+                const lastLogout = localStorage.getItem("last_forced_logout_" + currentPhone);
+                if (!lastLogout || parseInt(lastLogout) < data.logoutAllTimestamp) {
+                    localStorage.setItem("last_forced_logout_" + currentPhone, data.logoutAllTimestamp);
+                    alert("অ্যাডমিন কর্তৃক আপনার সেশনটি শেষ করা হয়েছে। অনুগ্রহ করে পুনরায় লগইন করুন।");
+                    logoutUser();
+                    return;
+                }
+            }
 
             // আগে কাজ অফ চেক
             if (data.taskEnabled === false) {
