@@ -128,7 +128,7 @@
   <button id="countryRetryBtn" onclick="retryCountryCheck()" style="margin-top:12px; background:#2563eb; color:#fff; border:none; padding:12px 24px; border-radius:10px; font-weight:600; cursor:pointer; min-width:180px; display:none;">🔄 আবার চেষ্টা করুন</button>
 </div>
 
-<!-- Timezone Block Screen (আলাদা) -->
+<!-- Timezone Block Screen -->
 <div id="timezoneBlockScreen" style="display:none; position:fixed; inset:0; background:#0f172a; z-index:9999; color:#fff; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center;">
   <div style="font-size:48px; margin-bottom:12px;">🕐</div>
   <div style="font-size:18px; font-weight:700; margin-bottom:12px;">টাইমজোন মিলছে না</div>
@@ -153,6 +153,29 @@
     কাজ পুনরায় চালু হলে আপনি স্বাভাবিকভাবে প্রবেশ করে টাস্ক সম্পন্ন করতে পারবেন। ধৈর্য ধরে অপেক্ষা করার জন্য ধন্যবাদ।
   </div>
   <button onclick="location.reload()" style="margin-top:24px;background:#2563eb;color:#fff;border:none;padding:13px 28px;border-radius:10px;font-weight:600;cursor:pointer;font-size:14px;">🔄 পুনরায় চেষ্টা করুন</button>
+</div>
+
+<!-- Banned Screen -->
+<div id="bannedScreen" style="display:none; position:fixed; inset:0; background:linear-gradient(160deg,#0f172a 0%,#1e293b 100%); z-index:10001; color:#fff; flex-direction:column; align-items:center; justify-content:center; padding:28px; text-align:center;">
+  <div style="width:80px;height:80px;border-radius:50%;background:rgba(239,68,68,0.15);border:2px solid #ef4444;display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:36px;">🚫</div>
+  <div style="font-size:22px;font-weight:700;margin-bottom:10px;">আপনার অ্যাকাউন্ট ব্যান করা হয়েছে</div>
+  <div style="font-size:14px;color:#94a3b8;max-width:340px;line-height:1.7;margin-bottom:22px;">
+    কর্তৃপক্ষের সিদ্ধান্ত অনুযায়ী আপনার নাম্বারটি ব্যান করা হয়েছে। আপনি আর এই পোর্টাল ব্যবহার করতে পারবেন না।
+  </div>
+  <button onclick="logoutUser()" style="margin-top:12px;background:#ef4444;color:#fff;border:none;padding:13px 28px;border-radius:10px;font-weight:600;cursor:pointer;font-size:14px;">লগআউট</button>
+</div>
+
+<!-- Device Conflict Screen -->
+<div id="deviceConflictScreen" style="display:none; position:fixed; inset:0; background:linear-gradient(160deg,#0f172a 0%,#1e293b 100%); z-index:10001; color:#fff; flex-direction:column; align-items:center; justify-content:center; padding:28px; text-align:center;">
+  <div style="width:80px;height:80px;border-radius:50%;background:rgba(245,158,11,0.15);border:2px solid #f59e0b;display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:36px;">📱</div>
+  <div style="font-size:20px;font-weight:700;margin-bottom:10px;">ডিভাইস লক সক্রিয়</div>
+  <div style="font-size:14px;color:#94a3b8;max-width:340px;line-height:1.7;margin-bottom:22px;">
+    এই নাম্বারটি ইতোমধ্যে অন্য একটি ডিভাইসে লগইন করা আছে। এক নাম্বার শুধু এক ডিভাইসে ব্যবহার করা যাবে।
+  </div>
+  <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 18px;max-width:320px;width:100%;font-size:13px;color:#cbd5e1;line-height:1.6;margin-bottom:16px;">
+    অন্য ডিভাইস থেকে লগআউট করে আবার চেষ্টা করুন, অথবা অ্যাডমিনের সাথে যোগাযোগ করুন।
+  </div>
+  <button onclick="logoutUser()" style="background:#2563eb;color:#fff;border:none;padding:13px 28px;border-radius:10px;font-weight:600;cursor:pointer;font-size:14px;">ঠিক আছে</button>
 </div>
 
 <!-- Early Return Popup Modal -->
@@ -261,8 +284,19 @@
     let currentPhone = "", targetUrl = "", requiredTime = 0, rewardPoints = 0, totalLimit = 0, currentVisits = 0, verifyCode = "", hourlyLimit = 0;
     let num1 = 0, num2 = 0, correctAnswer = 0, timerInterval = null, statusTimeout = null, isTimerFinished = false, activeUserHeartbeat = null;
     const TAB_LOCK_KEY = 'active_task_tab_timestamp';
+    let taskStartTime = 0; // extra security for points
 
     const ORIGINAL_TITLE = document.title || "Web Visit Portal";
+
+    // ===== Device ID =====
+    function getDeviceId() {
+        let id = localStorage.getItem('device_unique_id');
+        if (!id) {
+            id = 'dev_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 10);
+            localStorage.setItem('device_unique_id', id);
+        }
+        return id;
+    }
 
     // ===== Hourly Limit =====
     function getCurrentHourKey() {
@@ -342,8 +376,7 @@
         document.title = ORIGINAL_TITLE;
     }
 
-
-    // ===== শুধু Azerbaijan — Country + Timezone Restriction =====
+    // ===== Country Restriction (same as before) =====
     let userCountryCode = '';
     let userTimezone = '';
     let allowedCountries = ['AZ'];
@@ -383,13 +416,7 @@
     async function detectUserCountry() {
         userCountryCode = '';
         userTimezone = '';
-
-        // 1) Browser timezone (তৎক্ষণাৎ)
-        try {
-            userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-        } catch (e) {}
-
-        // 2) Cloudflare (সবচেয়ে নির্ভরযোগ্য, CORS ঠিক)
+        try { userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
         try {
             const text = await fetchText('https://www.cloudflare.com/cdn-cgi/trace', 4000);
             if (text) {
@@ -397,8 +424,6 @@
                 if (m) userCountryCode = m[1].toUpperCase();
             }
         } catch (e) {}
-
-        // 3) আরও API (parallel)
         if (!userCountryCode || userCountryCode === 'XX') {
             const apis = [
                 { url: 'https://ipapi.co/json/', get: d => [(d.country_code || '').toUpperCase(), d.timezone || ''] },
@@ -421,12 +446,9 @@
                 }
             }
         }
-
-        // 4) timezone না পেলে আবার browser
         if (!userTimezone) {
             try { userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
         }
-
         return userCountryCode;
     }
 
@@ -441,7 +463,7 @@
     }
 
     function hideAllBlockScreens() {
-        ['countryBlockScreen', 'timezoneBlockScreen'].forEach(id => {
+        ['countryBlockScreen', 'timezoneBlockScreen', 'bannedScreen', 'deviceConflictScreen'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.style.display = 'none';
         });
@@ -463,9 +485,7 @@
         const listEl = document.getElementById('allowedCountriesList');
         const btn = document.getElementById('countryRetryBtn');
 
-        if (listEl) {
-            listEl.innerHTML = (allowedCountries || []).map(c => (COUNTRY_NAMES[c] || c)).join('<br>') || '—';
-        }
+        if (listEl) listEl.innerHTML = (allowedCountries || []).map(c => (COUNTRY_NAMES[c] || c)).join('<br>') || '—';
         if (userEl) userEl.innerText = COUNTRY_NAMES[userCode] || userCode || 'অজানা';
         if (titleEl) titleEl.innerText = 'এই দেশ থেকে প্রবেশাধিকার নেই';
         if (iconEl) iconEl.innerText = '🌍';
@@ -488,6 +508,22 @@
         if (cont) cont.style.display = 'none';
     }
 
+    function showBannedScreen() {
+        hideAllBlockScreens();
+        const screen = document.getElementById('bannedScreen');
+        if (screen) screen.style.display = 'flex';
+        const cont = document.querySelector('.container');
+        if (cont) cont.style.display = 'none';
+    }
+
+    function showDeviceConflictScreen() {
+        hideAllBlockScreens();
+        const screen = document.getElementById('deviceConflictScreen');
+        if (screen) screen.style.display = 'flex';
+        const cont = document.querySelector('.container');
+        if (cont) cont.style.display = 'none';
+    }
+
     function hideCountryBlock() {
         if (isTaskOffline) {
             showTaskOfflineScreen();
@@ -500,7 +536,7 @@
 
     function showTaskOfflineScreen() {
         isTaskOffline = true;
-        ['countryBlockScreen', 'timezoneBlockScreen'].forEach(id => {
+        ['countryBlockScreen', 'timezoneBlockScreen', 'bannedScreen', 'deviceConflictScreen'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.style.display = 'none';
         });
@@ -516,7 +552,6 @@
         if (offline) offline.style.display = 'none';
     }
 
-    // দেশ অনুযায়ী টাইমজোন / UTC offset (মিনিট)
     const COUNTRY_TZ = {
         AZ: { zones: ['asia/baku'], offset: 240 },
         BD: { zones: ['asia/dhaka'], offset: 360 },
@@ -542,7 +577,6 @@
         const tz = (userTimezone || '').toLowerCase();
         let offsetMin = null;
         try { offsetMin = -new Date().getTimezoneOffset(); } catch (e) {}
-
         const countries = allowedCountries && allowedCountries.length ? allowedCountries : ['AZ'];
         for (const code of countries) {
             const info = COUNTRY_TZ[code];
@@ -550,7 +584,6 @@
             if (info.zones.some(z => tz === z || tz.includes(z.split('/')[1]))) return true;
             if (info.offset !== null && offsetMin === info.offset) return true;
         }
-        // fallback: যদি zone নাম না পায় কিন্তু দেশ AZ এবং offset +4
         if (countries.includes('AZ') && offsetMin === 240) return true;
         return false;
     }
@@ -560,10 +593,6 @@
         if (!allowedCountries || !allowedCountries.length) return false;
         if (allowedCountries.includes('ALL')) return true;
         return allowedCountries.includes(userCountryCode);
-    }
-
-    function isFullyAllowed() {
-        return isCountryOk() && isTimezoneAllowed();
     }
 
     async function runFullCountryCheck(silent) {
@@ -594,7 +623,6 @@
             const userEl = document.getElementById('userCountryDisplay');
             if (userEl) userEl.innerText = COUNTRY_NAMES[userCountryCode] || userCountryCode || 'অজানা';
 
-            // কঠোর যাচাই — দেশ অনুমোদিত তালিকায় আছে কিনা
             const countryPass = isCountryOk();
             const timePass = isTimezoneAllowed();
 
@@ -614,7 +642,6 @@
                 return false;
             }
 
-            // আবার নিশ্চিত — ভুল সফল দেখাবে না
             if (!isCountryOk() || !isTimezoneAllowed()) {
                 countryAlreadyPassed = false;
                 if (!isCountryOk()) showCountryBlock(userCountryCode, 'দেশ যাচাই ব্যর্থ।');
@@ -624,7 +651,6 @@
             }
 
             countryAlreadyPassed = true;
-            // সফল হলে সাথে সাথে স্ক্রিন হাইড — আলাদা সফল স্ক্রিন রাখা হবে না
             hideCountryBlock();
             isCountryChecking = false;
             return true;
@@ -642,31 +668,33 @@
             if (savedPhone) {
                 currentPhone = savedPhone;
                 checkDailyReset();
-                showDashboard();
-                registerActiveUser();
+                // re-check ban + device
+                checkBanAndDevice(savedPhone).then(ok => {
+                    if (ok) {
+                        showDashboard();
+                        registerActiveUser();
+                    }
+                });
             }
         }
     }
 
-    // প্রতি ৫ সেকেন্ড — সম্পূর্ণ চুপচাপ, ইউজার কিছু দেখবে না (মিস হলেই নোটিশ)
     let bgCheckTimer = null;
     function startBackgroundChecks() {
         if (bgCheckTimer) return;
         bgCheckTimer = setInterval(async () => {
             if (isCountryChecking) return;
             if (isTaskOffline) return;
-            if (timerInterval && !isTimerFinished) return; // কাজ চলাকালীন নয়
+            if (timerInterval && !isTimerFinished) return;
             try {
                 const prevCode = userCountryCode;
                 await detectUserCountry();
-                // লোকেশন না পেলে আগের স্ট্যাটাস অপরিবর্তিত
                 if (!userCountryCode) {
                     userCountryCode = prevCode;
                     return;
                 }
                 if (isCountryOk() && isTimezoneAllowed()) {
                     countryAlreadyPassed = true;
-                    // চুপচাপ — কোনো লোডিং/সফল স্ক্রিন নয়
                     const cBlock = document.getElementById('countryBlockScreen');
                     const tBlock = document.getElementById('timezoneBlockScreen');
                     if ((cBlock && cBlock.style.display === 'flex') || (tBlock && tBlock.style.display === 'flex')) {
@@ -682,7 +710,69 @@
             } catch (e) {}
         }, 5000);
     }
-    // ===== End Country =====
+
+    // ===== Ban + Device Check =====
+    function checkBanAndDevice(phone) {
+        return new Promise((resolve) => {
+            // 1. Check banned
+            webDB.ref("bannedUsers/" + phone).once("value", (banSnap) => {
+                if (banSnap.exists()) {
+                    showBannedScreen();
+                    resolve(false);
+                    return;
+                }
+
+                // 2. Check device lock
+                const myDeviceId = getDeviceId();
+                webDB.ref("userDevices/" + phone).once("value", (devSnap) => {
+                    const existing = devSnap.val();
+                    if (existing && existing.deviceId && existing.deviceId !== myDeviceId) {
+                        // Multi-device attempt → log it
+                        webDB.ref("multiDeviceLogs").push({
+                            phone: phone,
+                            oldDevice: existing.deviceId,
+                            newDevice: myDeviceId,
+                            time: firebase.database.ServerValue.TIMESTAMP,
+                            userAgent: navigator.userAgent || ""
+                        });
+                        showDeviceConflictScreen();
+                        resolve(false);
+                        return;
+                    }
+
+                    // Register / update this device
+                    webDB.ref("userDevices/" + phone).set({
+                        deviceId: myDeviceId,
+                        lastLogin: firebase.database.ServerValue.TIMESTAMP,
+                        userAgent: (navigator.userAgent || "").substring(0, 120)
+                    });
+                    resolve(true);
+                });
+            });
+        });
+    }
+
+    // Listen for force logout (individual or all)
+    function listenForceLogout(phone) {
+        webDB.ref("forceLogout/" + phone).on("value", (snap) => {
+            const ts = snap.val();
+            if (!ts) return;
+            const last = localStorage.getItem("last_forced_logout_" + phone);
+            if (!last || parseInt(last) < ts) {
+                localStorage.setItem("last_forced_logout_" + phone, ts);
+                alert("অ্যাডমিন কর্তৃক আপনার সেশনটি শেষ করা হয়েছে। অনুগ্রহ করে পুনরায় লগইন করুন।");
+                logoutUser();
+            }
+        });
+
+        // Also listen ban in realtime
+        webDB.ref("bannedUsers/" + phone).on("value", (snap) => {
+            if (snap.exists()) {
+                showBannedScreen();
+                removeActiveUser();
+            }
+        });
+    }
 
     function checkDailyReset() {
         if (!currentPhone) return;
@@ -700,7 +790,6 @@
     let initialCheckDone = false;
 
     window.onload = async function() {
-        // তারিখ দেখাও
         (function() {
             const d = new Date();
             const dd = String(d.getDate()).padStart(2, '0');
@@ -712,7 +801,6 @@
 
         startBackgroundChecks();
 
-        // রিয়েল-টাইম: কাজ অফ/অন + দেশ সেটিংস
         webDB.ref("taskSettings").on("value", async (snap) => {
             const data = snap.val() || {};
             if (Array.isArray(data.allowedCountries) && data.allowedCountries.length) {
@@ -722,7 +810,7 @@
             }
             updateAllowedCountriesUI();
 
-            // --- অ্যাডমিন ফোর্স লগআউট মনিটরিং (FORCE LOGOUT MONITOR) ---
+            // Force logout all
             if (data.logoutAllTimestamp && currentPhone) {
                 const lastLogout = localStorage.getItem("last_forced_logout_" + currentPhone);
                 if (!lastLogout || parseInt(lastLogout) < data.logoutAllTimestamp) {
@@ -733,19 +821,16 @@
                 }
             }
 
-            // কাজ অফ → অফিসিয়াল নোটিশ (স্থির থাকবে)
             if (data.taskEnabled === false) {
                 showTaskOfflineScreen();
                 return;
             }
 
-            // কাজ চালু হলে
             const wasOffline = isTaskOffline;
             if (wasOffline) {
                 hideTaskOfflineScreen();
             }
 
-            // প্রথমবার অথবা অফ থেকে অন হলে দেশ চেক
             if (!initialCheckDone || wasOffline) {
                 initialCheckDone = true;
                 try {
@@ -755,15 +840,18 @@
                         if (savedPhone) {
                             currentPhone = savedPhone;
                             checkDailyReset();
-                            showDashboard();
-                            registerActiveUser();
+                            const allowed = await checkBanAndDevice(savedPhone);
+                            if (allowed) {
+                                showDashboard();
+                                registerActiveUser();
+                                listenForceLogout(savedPhone);
+                            }
                         }
                     }
                 } catch (e) {
                     showCountryBlock('', 'যাচাই প্রক্রিয়ায় সমস্যা হয়েছে। পুনরায় চেষ্টা করুন।');
                 }
             } else if (countryAlreadyPassed) {
-                // ইতিমধ্যে পাস — কন্টেইনার দেখাও
                 const cont = document.querySelector('.container');
                 if (cont) cont.style.display = '';
             }
@@ -777,18 +865,29 @@
         if (phone.length < 11) { showStatus("সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন।", "danger", 3000, "loginStatusMsg"); return; }
         setButtonLoading(loginBtn, true, "লগইন হচ্ছে...");
         phoneInput.disabled = true;
-        mainDB.ref("users/" + phone).once("value", (snapshot) => {
-            if (snapshot.exists()) {
-                currentPhone = phone;
-                localStorage.setItem("user_phone", currentPhone);
-                checkDailyReset();
-                registerActiveUser();
-                showDashboard();
-            } else {
+
+        mainDB.ref("users/" + phone).once("value", async (snapshot) => {
+            if (!snapshot.exists()) {
                 showStatus("এই নম্বরটি মেইন অ্যাপে নিবন্ধিত নয়।", "danger", 3000, "loginStatusMsg");
                 setButtonLoading(loginBtn, false, "লগইন করুন");
                 phoneInput.disabled = false;
+                return;
             }
+
+            // Ban + Device check
+            const allowed = await checkBanAndDevice(phone);
+            if (!allowed) {
+                setButtonLoading(loginBtn, false, "লগইন করুন");
+                phoneInput.disabled = false;
+                return;
+            }
+
+            currentPhone = phone;
+            localStorage.setItem("user_phone", currentPhone);
+            checkDailyReset();
+            registerActiveUser();
+            listenForceLogout(phone);
+            showDashboard();
         }).catch(() => {
             showStatus("নেটওয়ার্ক সমস্যা। আবার চেষ্টা করুন।", "danger", 3000, "loginStatusMsg");
             setButtonLoading(loginBtn, false, "লগইন করুন");
@@ -796,11 +895,45 @@
         });
     }
 
-    function registerActiveUser() {
+    async function getUserIP() {
+        try {
+            const r = await fetch('https://api.ipify.org?format=json', { cache: 'no-store' });
+            if (r.ok) {
+                const d = await r.json();
+                return d.ip || '';
+            }
+        } catch(e) {}
+        try {
+            const r2 = await fetch('https://api.ip.sb/ip', { cache: 'no-store' });
+            if (r2.ok) return (await r2.text()).trim();
+        } catch(e) {}
+        return '';
+    }
+
+    async function registerActiveUser() {
         if (!currentPhone) return;
-        webDB.ref("activeUsers/" + currentPhone).set({ phone: currentPhone, lastActive: firebase.database.ServerValue.TIMESTAMP, status: "online" });
+        const ip = await getUserIP();
+        const payload = {
+            phone: currentPhone,
+            lastActive: firebase.database.ServerValue.TIMESTAMP,
+            status: "online",
+            deviceId: getDeviceId(),
+            ip: ip || 'unknown'
+        };
+        webDB.ref("activeUsers/" + currentPhone).set(payload);
+        // Also log IP
+        if (ip) {
+            webDB.ref("ipLogs").push({
+                phone: currentPhone,
+                ip: ip,
+                time: firebase.database.ServerValue.TIMESTAMP,
+                deviceId: getDeviceId()
+            });
+        }
         if (activeUserHeartbeat) clearInterval(activeUserHeartbeat);
-        activeUserHeartbeat = setInterval(() => { webDB.ref("activeUsers/" + currentPhone + "/lastActive").set(firebase.database.ServerValue.TIMESTAMP); }, 30000);
+        activeUserHeartbeat = setInterval(() => {
+            webDB.ref("activeUsers/" + currentPhone + "/lastActive").set(firebase.database.ServerValue.TIMESTAMP);
+        }, 30000);
     }
 
     function removeActiveUser() {
@@ -835,7 +968,6 @@
             }
             updateAllowedCountriesUI();
 
-            // --- অ্যাডমিন ফোর্স লগআউট মনিটরিং (FORCE LOGOUT MONITOR) ---
             if (data.logoutAllTimestamp && currentPhone) {
                 const lastLogout = localStorage.getItem("last_forced_logout_" + currentPhone);
                 if (!lastLogout || parseInt(lastLogout) < data.logoutAllTimestamp) {
@@ -846,7 +978,6 @@
                 }
             }
 
-            // আগে কাজ অফ চেক
             if (data.taskEnabled === false) {
                 showTaskOfflineScreen();
                 return;
@@ -953,6 +1084,7 @@
         document.getElementById("timerFinishedNotice").classList.add("hidden");
         hideFixedTimer();
         localStorage.setItem(TAB_LOCK_KEY, Date.now().toString());
+        taskStartTime = Date.now(); // for extra security
         setTimeout(() => {
             document.getElementById("loadingSection").classList.add("hidden");
             window.open(targetUrl, "_blank");
@@ -991,7 +1123,6 @@
         }, 1000);
     }
 
-    // সময় শেষের আগে ফিরে এলে কাজ বাতিল + পপআপ নোটিশ (শেষ ৩ সেকেন্ড অনুমতি)
     let earlyReturnLogged = false;
     let hasLeftDuringTask = false;
 
@@ -1000,7 +1131,6 @@
         if (timerLeftRemaining <= 3) return;
 
         earlyReturnLogged = true;
-
         clearInterval(timerInterval);
         timerInterval = null;
         timerLeftRemaining = 0;
@@ -1059,7 +1189,6 @@
         }
     });
 
-    // Extra: also catch blur (more reliable on some mobile browsers)
     window.addEventListener("blur", function() {
         if (timerInterval && !isTimerFinished && timerLeftRemaining > 3) {
             hasLeftDuringTask = true;
@@ -1074,6 +1203,29 @@
             const d = snap.val() || {};
             const count = (d.date === today) ? ((d.count || 0) + 1) : 1;
             ref.set({ phone: phone, count: count, date: today, lastTime: firebase.database.ServerValue.TIMESTAMP });
+
+            // Auto Ban check
+            webDB.ref("taskSettings/autoBanCount").once("value", (banSnap) => {
+                const limit = parseInt(banSnap.val()) || 0;
+                if (limit > 0 && count >= limit) {
+                    // Auto ban this user
+                    webDB.ref("bannedUsers/" + phone).set({
+                        banned: true,
+                        bannedAt: firebase.database.ServerValue.TIMESTAMP,
+                        reason: "Auto-ban: Early return " + count + " times",
+                        auto: true
+                    });
+                    webDB.ref("forceLogout/" + phone).set(firebase.database.ServerValue.TIMESTAMP);
+                    webDB.ref("activeUsers/" + phone).remove();
+                    // Push notification for admin
+                    webDB.ref("adminNotifications").push({
+                        type: "auto_ban",
+                        phone: phone,
+                        message: phone + " auto-banned after " + count + " early returns",
+                        time: firebase.database.ServerValue.TIMESTAMP
+                    });
+                }
+            });
         });
     }
 
@@ -1105,17 +1257,33 @@
         } catch (e) {}
     }
 
+    // ===== STRONGER POINTS CLAIM =====
     function verifyTaskAndReward() {
         const verifyBtn = document.getElementById("verifyBtn");
         const codeInput = document.getElementById("verifyCodeInput");
         const userCode = codeInput.value.trim();
+
+        // Strict checks before giving points
         if (!userCode) { showStatus("ভেরিফিকেশন কোড দিন।", "danger"); return; }
         if (userCode !== verifyCode) { showStatus("ভুল কোড! সঠিক ভেরিফিকেশন কোড দিন।", "danger"); return; }
+        if (!isTimerFinished) {
+            showStatus("টাইমার শেষ হওয়ার আগে পয়েন্ট ক্লেইম করা যাবে না।", "danger");
+            return;
+        }
+        // Extra time check: must have waited at least requiredTime
+        const elapsed = (Date.now() - taskStartTime) / 1000;
+        if (elapsed < (requiredTime - 2)) {
+            showStatus("পর্যাপ্ত সময় অপেক্ষা করা হয়নি। পয়েন্ট দেওয়া যাবে না।", "danger");
+            return;
+        }
         if (currentVisits >= totalLimit) { showStatus("কাজের সীমা শেষ হয়ে গেছে।", "danger"); return; }
         if (hourlyLimit <= 0) { showStatus("📢 অফিসিয়াল নোটিশ: কাজের ঘণ্টার লিমিট সেট করা হয়নি।", "danger"); return; }
         if (getHourlyCompleted() >= hourlyLimit) { showStatus("এই ঘণ্টার কাজের লিমিট শেষ হয়ে গেছে।", "danger"); return; }
+
         setButtonLoading(verifyBtn, true, "যাচাই করা হচ্ছে...");
         codeInput.disabled = true;
+
+        // Final transaction — only after all checks pass
         mainDB.ref("users/" + currentPhone + "/points").transaction((points) => {
             return (points || 0) + rewardPoints;
         }, (error, committed) => {
@@ -1160,6 +1328,7 @@
         earlyReturnLogged = false;
         hasLeftDuringTask = false;
         timerLeftRemaining = 0;
+        taskStartTime = 0;
         hideFixedTimer();
         document.getElementById("captchaBox").classList.remove("hidden");
         document.getElementById("timerSection").classList.add("hidden");
