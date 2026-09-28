@@ -360,6 +360,7 @@
     let num1 = 0, num2 = 0, correctAnswer = 0, timerInterval = null, statusTimeout = null, isTimerFinished = false, activeUserHeartbeat = null;
     const TAB_LOCK_KEY = 'active_task_tab_timestamp';
     let taskStartTime = 0;
+    let isTaskInProgress = false; // true from visit start until reset — protects UI from mid-task disable
 
     const ORIGINAL_TITLE = document.title || "Web Visit Portal";
 
@@ -1363,6 +1364,9 @@
             document.getElementById("remainingCount").innerText = remaining;
             updateHourlyUI();
 
+            // Do NOT change task UI while user is mid-task (timer / verify)
+            if (isTaskInProgress) return;
+
             if (hourlyLimit <= 0) {
                 disableTaskSystem("📢 Official Notice: Hourly task limit is not set. Admin has not yet defined how many tasks can be done per hour.");
             } else if (!targetUrl) {
@@ -1444,6 +1448,7 @@
         hideFixedTimer();
         localStorage.setItem(TAB_LOCK_KEY, Date.now().toString());
         taskStartTime = Date.now();
+        isTaskInProgress = true;
 
         // Today Total Visit: count every attempt when user starts the visit (correct or not)
         webDB.ref("taskSettings/currentVisits").transaction((v) => (v || 0) + 1);
@@ -1683,7 +1688,7 @@
             showVerifyModalStatus("Insufficient waiting time. Points cannot be awarded.", "danger");
             return;
         }
-        if (currentVisits >= totalLimit) { showVerifyModalStatus("Task limit has been reached.", "danger"); return; }
+        // Note: total visit limit is checked at START only (already counted when visit began)
         if (hourlyLimit <= 0) { showVerifyModalStatus("📢 Official Notice: Hourly task limit is not set.", "danger"); return; }
         if (getHourlyCompleted() >= hourlyLimit) { showVerifyModalStatus("Hourly limit reached. Please wait for the cooldown.", "danger"); return; }
 
@@ -1736,12 +1741,42 @@
         hasLeftDuringTask = false;
         timerLeftRemaining = 0;
         taskStartTime = 0;
+        isTaskInProgress = false;
         hideFixedTimer();
         closeVerifyModal();
-        document.getElementById("captchaBox").classList.remove("hidden");
         document.getElementById("timerSection").classList.add("hidden");
         document.getElementById("loadingSection").classList.add("hidden");
         document.getElementById("verifyCodeInput").value = "";
+
+        // Refresh remaining from latest values
+        const remaining = Math.max(0, (totalLimit || 0) - (currentVisits || 0));
+        const remainingEl = document.getElementById("remainingCount");
+        if (remainingEl) remainingEl.innerText = remaining;
+        updateHourlyUI();
+
+        // If limit reached after this task, disable; otherwise enable with cooldown
+        if (hourlyLimit <= 0) {
+            disableTaskSystem("📢 Official Notice: Hourly task limit is not set. Admin has not yet defined how many tasks can be done per hour.");
+            return;
+        }
+        if (!targetUrl) {
+            disableTaskSystem("No link is currently set — Not Available");
+            return;
+        }
+        if (!verifyCode) {
+            disableTaskSystem("Verification code is not set — Not Available");
+            return;
+        }
+        if (totalLimit > 0 && currentVisits >= totalLimit) {
+            disableTaskSystem("Today's task limit has been reached. You cannot do more tasks today!");
+            return;
+        }
+        if (getHourlyCompleted() >= hourlyLimit) {
+            disableTaskSystem("Hourly limit reached. Please wait for the cooldown.");
+            return;
+        }
+
+        document.getElementById("captchaBox").classList.remove("hidden");
         generateMathCaptcha();
         const visitBtn = document.getElementById("visitBtn");
         visitBtn.classList.remove("hidden");
@@ -1759,6 +1794,8 @@
     }
 
     function disableTaskSystem(msg) {
+        // Never disrupt mid-task UI (timer / verify modal)
+        if (isTaskInProgress) return;
         hideFixedTimer();
         document.getElementById("captchaBox").classList.add("hidden");
         document.getElementById("loadingSection").classList.add("hidden");
