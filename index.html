@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Website Visit Tasks</title>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
+    <title>Web Visit Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         :root { --primary-color: #2563eb; --primary-hover: #1d4ed8; --bg-color: #f1f5f9; --card-bg: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --success-color: #10b981; --danger-color: #ef4444; --border-color: #e2e8f0; --accent-glow: rgba(37, 99, 235, 0.08); }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Hind Siliguri', 'Plus Jakarta Sans', sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background-color: var(--bg-color); background-image: radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.05) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.05) 0px, transparent 50%); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px 15px; }
         .container { width: 100%; max-width: 440px; background: var(--card-bg); border-radius: 20px; box-shadow: 0 20px 50px -12px rgba(15, 23, 42, 0.1), 0 0 0 1px rgba(226, 232, 240, 0.6); border: 1px solid rgba(226, 232, 240, 0.8); overflow: hidden; }
         .header { background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-bottom: 1px solid var(--border-color); padding: 24px 20px 20px; text-align: center; }
@@ -40,6 +40,8 @@
         .btn:disabled { opacity: 0.65; cursor: not-allowed; box-shadow: none; }
         .btn-success { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 6px 18px rgba(16, 185, 129, 0.28); }
         .btn-success:hover { background: #059669; }
+        .btn-outline { background: #fff; color: #64748b; border: 1.5px solid #e2e8f0; box-shadow: none; }
+        .btn-outline:hover { background: #f8fafc; color: #0f172a; }
         .captcha-card { background: #f8fafc; border: 1.5px dashed #cbd5e1; padding: 18px; border-radius: 12px; text-align: center; margin-bottom: 20px; }
         .captcha-title { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 5px; }
         .captcha-math { font-size: 26px; font-weight: 700; color: var(--text-main); margin-bottom: 12px; letter-spacing: 1px; background: #ffffff; display: inline-block; padding: 4px 20px; border-radius: 8px; border: 1px solid var(--border-color); }
@@ -54,7 +56,7 @@
         .instruction-box { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; padding: 12px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 15px; line-height: 1.5; }
         .loading-overlay { text-align: center; padding: 30px 10px; }
         .loading-spinner { font-size: 32px; color: var(--primary-color); margin-bottom: 12px; }
-    
+
         /* Premium Fixed Timer Bar */
         #fixedTimerBar {
             display: none;
@@ -103,6 +105,56 @@
             font-size: 16px;
             margin-bottom: 4px;
         }
+
+        /* Modal styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.78);
+            z-index: 10002;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.show { display: flex !important; }
+        .modal-box {
+            background: #ffffff;
+            border-radius: 20px;
+            max-width: 340px;
+            width: 100%;
+            padding: 28px 22px 24px;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.28);
+        }
+        .modal-icon {
+            width: 64px; height: 64px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 30px;
+        }
+        .modal-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+        .modal-text {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.7;
+            margin-bottom: 22px;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .modal-buttons .btn {
+            flex: 1;
+            padding: 12px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -110,167 +162,190 @@
 <!-- Fixed Timer Bar -->
 <div id="fixedTimerBar">
     <span>⏱</span>
-    <span id="fixedTimerText">অপেক্ষা করুন:</span>
-    <span class="timer-sec" id="fixedTimerCount">0</span> সেকেন্ড
+    <span id="fixedTimerText">Please wait:</span>
+    <span class="timer-sec" id="fixedTimerCount">0</span> seconds
 </div>
 
 
 <!-- Loading / Country Block Screen -->
 <div id="countryBlockScreen" style="display:flex; position:fixed; inset:0; background:#0f172a; z-index:9999; color:#fff; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center;">
   <div style="font-size:48px; margin-bottom:12px;" id="countryBlockIcon">⏳</div>
-  <div style="font-size:18px; font-weight:700; margin-bottom:12px;" id="countryBlockTitle">যাচাই করা হচ্ছে...</div>
+  <div style="font-size:18px; font-weight:700; margin-bottom:12px;" id="countryBlockTitle">Verifying...</div>
   <div style="background:rgba(255,255,255,0.08); border-radius:14px; padding:16px; max-width:340px; width:100%; margin-bottom:16px;">
-    <div style="font-size:13px; color:#94a3b8; margin-bottom:8px;">অনুমোদিত দেশ:</div>
-    <div id="allowedCountriesList" style="font-size:14px; line-height:1.6;">লোডিং হচ্ছে...</div>
+    <div style="font-size:13px; color:#94a3b8; margin-bottom:8px;">Allowed Countries:</div>
+    <div id="allowedCountriesList" style="font-size:14px; line-height:1.6;">Loading...</div>
   </div>
-  <div style="font-size:14px; margin-bottom:6px;">আপনার দেশ: <strong id="userCountryDisplay">—</strong></div>
-  <div id="countryCheckStatus" style="font-size:13px; color:#94a3b8; min-height:20px; margin-bottom:8px;">অপেক্ষা করুন...</div>
-  <button id="countryRetryBtn" onclick="retryCountryCheck()" style="margin-top:12px; background:#2563eb; color:#fff; border:none; padding:12px 24px; border-radius:10px; font-weight:600; cursor:pointer; min-width:180px; display:none;">🔄 আবার চেষ্টা করুন</button>
+  <div style="font-size:14px; margin-bottom:6px;">Your Country: <strong id="userCountryDisplay">—</strong></div>
+  <div id="countryCheckStatus" style="font-size:13px; color:#94a3b8; min-height:20px; margin-bottom:8px;">Please wait...</div>
+  <button id="countryRetryBtn" onclick="retryCountryCheck()" style="margin-top:12px; background:#2563eb; color:#fff; border:none; padding:12px 24px; border-radius:10px; font-weight:600; cursor:pointer; min-width:180px; display:none;">🔄 Try Again</button>
 </div>
 
 <!-- Timezone Block Screen -->
 <div id="timezoneBlockScreen" style="display:none; position:fixed; inset:0; background:#0f172a; z-index:9999; color:#fff; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center;">
   <div style="font-size:48px; margin-bottom:12px;">🕐</div>
-  <div style="font-size:18px; font-weight:700; margin-bottom:12px;">টাইমজোন মিলছে না</div>
+  <div style="font-size:18px; font-weight:700; margin-bottom:12px;">Timezone Mismatch</div>
   <div style="background:rgba(255,255,255,0.08); border-radius:14px; padding:16px; max-width:340px; width:100%; margin-bottom:16px; font-size:14px; line-height:1.7;">
-    আপনার IP অনুযায়ী দেশ সঠিক, তবে ডিভাইসের সময়/টাইমজোন অনুমোদিত নয়।<br><br>
-    প্রয়োজনীয় টাইমজোন: <strong>Asia/Baku (UTC+4)</strong>
+    Your IP country is correct, but your device time/timezone is not allowed.<br><br>
+    Required Timezone: <strong>Asia/Baku (UTC+4)</strong>
   </div>
-  <div style="font-size:14px; margin-bottom:6px;">আপনার টাইমজোন: <strong id="tzUserDisplay">—</strong></div>
-  <div style="font-size:13px; color:#94a3b8; margin-bottom:12px;">ডিভাইসের তারিখ ও সময় স্বয়ংক্রিয় (Automatic) রাখুন।</div>
-  <button onclick="retryCountryCheck()" style="margin-top:8px; background:#2563eb; color:#fff; border:none; padding:12px 24px; border-radius:10px; font-weight:600; cursor:pointer; min-width:180px;">🔄 আবার চেষ্টা করুন</button>
+  <div style="font-size:14px; margin-bottom:6px;">Your Timezone: <strong id="tzUserDisplay">—</strong></div>
+  <div style="font-size:13px; color:#94a3b8; margin-bottom:12px;">Please keep your device date & time on Automatic.</div>
+  <button onclick="retryCountryCheck()" style="margin-top:8px; background:#2563eb; color:#fff; border:none; padding:12px 24px; border-radius:10px; font-weight:600; cursor:pointer; min-width:180px;">🔄 Try Again</button>
 </div>
 
-<!-- কাজ অফ — অফিসিয়াল নোটিশ -->
+<!-- Task Offline — Official Notice -->
 <div id="taskOfflineScreen" style="display:none; position:fixed; inset:0; background:linear-gradient(160deg,#0f172a 0%,#1e293b 100%); z-index:10000; color:#fff; flex-direction:column; align-items:center; justify-content:center; padding:28px; text-align:center;">
   <div style="width:80px;height:80px;border-radius:50%;background:rgba(239,68,68,0.15);border:2px solid #ef4444;display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:36px;">⛔</div>
-  <div style="font-size:22px;font-weight:700;margin-bottom:10px;">কাজ সাময়িকভাবে স্থগিত</div>
+  <div style="font-size:22px;font-weight:700;margin-bottom:10px;">Tasks Temporarily Suspended</div>
   <div style="font-size:14px;color:#94a3b8;max-width:340px;line-height:1.7;margin-bottom:22px;">
-    কর্তৃপক্ষের সিদ্ধান্ত অনুযায়ী বর্তমানে সকল ওয়েব ভিজিট টাস্ক বন্ধ রাখা হয়েছে।
+    As per authority decision, all web visit tasks are currently disabled.
   </div>
   <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 18px;max-width:320px;width:100%;font-size:13px;color:#cbd5e1;line-height:1.6;">
-    <div style="margin-bottom:6px;">📢 <strong style="color:#fff;">অফিসিয়াল নোটিশ</strong></div>
-    কাজ পুনরায় চালু হলে আপনি স্বাভাবিকভাবে প্রবেশ করে টাস্ক সম্পন্ন করতে পারবেন। ধৈর্য ধরে অপেক্ষা করার জন্য ধন্যবাদ।
+    <div style="margin-bottom:6px;">📢 <strong style="color:#fff;">Official Notice</strong></div>
+    You will be able to access and complete tasks normally once they are re-enabled. Thank you for your patience.
   </div>
-  <button onclick="location.reload()" style="margin-top:24px;background:#2563eb;color:#fff;border:none;padding:13px 28px;border-radius:10px;font-weight:600;cursor:pointer;font-size:14px;">🔄 পুনরায় চেষ্টা করুন</button>
+  <button onclick="location.reload()" style="margin-top:24px;background:#2563eb;color:#fff;border:none;padding:13px 28px;border-radius:10px;font-weight:600;cursor:pointer;font-size:14px;">🔄 Try Again</button>
 </div>
 
 <!-- Banned Screen -->
 <div id="bannedScreen" style="display:none; position:fixed; inset:0; background:linear-gradient(160deg,#0f172a 0%,#1e293b 100%); z-index:10001; color:#fff; flex-direction:column; align-items:center; justify-content:center; padding:28px; text-align:center;">
   <div style="width:80px;height:80px;border-radius:50%;background:rgba(239,68,68,0.15);border:2px solid #ef4444;display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:36px;">🚫</div>
-  <div style="font-size:22px;font-weight:700;margin-bottom:10px;">আপনার অ্যাকাউন্ট ব্যান করা হয়েছে</div>
+  <div style="font-size:22px;font-weight:700;margin-bottom:10px;">Your Account Has Been Banned</div>
   <div style="font-size:14px;color:#94a3b8;max-width:340px;line-height:1.7;margin-bottom:22px;">
-    কর্তৃপক্ষের সিদ্ধান্ত অনুযায়ী আপনার নাম্বারটি ব্যান করা হয়েছে। আপনি আর এই পোর্টাল ব্যবহার করতে পারবেন না।
+    As per authority decision, your number has been banned. You can no longer use this portal.
   </div>
-  <button onclick="logoutUser()" style="margin-top:12px;background:#ef4444;color:#fff;border:none;padding:13px 28px;border-radius:10px;font-weight:600;cursor:pointer;font-size:14px;">লগআউট</button>
+  <button onclick="logoutUser()" style="margin-top:12px;background:#ef4444;color:#fff;border:none;padding:13px 28px;border-radius:10px;font-weight:600;cursor:pointer;font-size:14px;">Logout</button>
 </div>
 
 <!-- Device Conflict Screen -->
 <div id="deviceConflictScreen" style="display:none; position:fixed; inset:0; background:linear-gradient(160deg,#0f172a 0%,#1e293b 100%); z-index:10001; color:#fff; flex-direction:column; align-items:center; justify-content:center; padding:28px; text-align:center;">
   <div style="width:80px;height:80px;border-radius:50%;background:rgba(245,158,11,0.15);border:2px solid #f59e0b;display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:36px;">📱</div>
-  <div style="font-size:20px;font-weight:700;margin-bottom:10px;">ডিভাইস লক সক্রিয়</div>
+  <div style="font-size:20px;font-weight:700;margin-bottom:10px;">Device Lock Active</div>
   <div style="font-size:14px;color:#94a3b8;max-width:340px;line-height:1.7;margin-bottom:22px;">
-    এই নাম্বারটি ইতোমধ্যে অন্য একটি ডিভাইসে লগইন করা আছে। এক নাম্বার শুধু এক ডিভাইসে ব্যবহার করা যাবে।
+    This number is already logged in on another device. One number can only be used on one device.
   </div>
   <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 18px;max-width:320px;width:100%;font-size:13px;color:#cbd5e1;line-height:1.6;margin-bottom:16px;">
-    অন্য ডিভাইস থেকে লগআউট করে আবার চেষ্টা করুন, অথবা অ্যাডমিনের সাথে যোগাযোগ করুন।
+    Please logout from the other device and try again, or contact the admin.
   </div>
-  <button onclick="logoutUser()" style="background:#2563eb;color:#fff;border:none;padding:13px 28px;border-radius:10px;font-weight:600;cursor:pointer;font-size:14px;">ঠিক আছে</button>
+  <button onclick="logoutUser()" style="background:#2563eb;color:#fff;border:none;padding:13px 28px;border-radius:10px;font-weight:600;cursor:pointer;font-size:14px;">Okay</button>
 </div>
 
 <!-- Early Return Popup Modal -->
-<div id="earlyReturnModal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.78); z-index:10002; align-items:center; justify-content:center; padding:20px;">
-  <div style="background:#ffffff; border-radius:20px; max-width:340px; width:100%; padding:28px 22px 24px; text-align:center; box-shadow:0 25px 50px rgba(0,0,0,0.28);">
-    <div style="width:64px; height:64px; background:#fef2f2; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:30px;">📢</div>
-    <div style="font-size:14.5px; color:#334155; line-height:1.75; margin-bottom:8px; font-weight:500;">
-      ⚠️ আপনি নির্ধারিত সময়ের আগেই<br>কাজ থেকে বের হয়েছেন।
+<div id="earlyReturnModal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-icon" style="background:#fef2f2;">📢</div>
+    <div class="modal-title">Early Exit Detected</div>
+    <div class="modal-text">
+      ⚠️ You left the task before the required time ended.<br><br>
+      Please follow the rules and complete the task properly.<br>
+      Repeated violations may result in your account being blocked.
     </div>
-    <div style="font-size:13.5px; color:#64748b; line-height:1.7; margin-bottom:22px; padding:0 4px;">
-      দয়া করে নিয়ম মেনে কাজ সম্পন্ন করুন।<br>
-      নিয়ম মেনে কাজ না করলে আপনার<br>অ্যাকাউন্ট ব্লক করা হতে পারে।
-    </div>
-    <button id="earlyReturnCloseBtn" onclick="closeEarlyReturnModal()" style="background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; border:none; padding:14px 28px; border-radius:12px; font-weight:600; font-size:15px; cursor:pointer; width:100%; box-shadow:0 6px 16px rgba(37,99,235,0.3);">Close</button>
+    <button id="earlyReturnCloseBtn" onclick="closeEarlyReturnModal()" class="btn" style="width:100%;">Close</button>
   </div>
 </div>
-<style>
-  #earlyReturnModal.show { display: flex !important; }
-</style>
+
+<!-- Logout Confirmation Modal -->
+<div id="logoutModal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-icon" style="background:#eff6ff;">🚪</div>
+    <div class="modal-title">Confirm Logout</div>
+    <div class="modal-text">
+      Do you want to logout?
+    </div>
+    <div class="modal-buttons">
+      <button onclick="closeLogoutModal()" class="btn btn-outline">Close</button>
+      <button onclick="confirmLogout()" class="btn" style="background:linear-gradient(135deg,#ef4444,#dc2626);">Okay</button>
+    </div>
+  </div>
+</div>
+
+<!-- Verification Modal (shows after timer finishes) -->
+<div id="verifyModal" class="modal-overlay">
+  <div class="modal-box" style="max-width:360px;">
+    <div class="modal-icon" style="background:#ecfdf5;">⏰</div>
+    <div class="modal-title">Time's Up!</div>
+    <div class="modal-text" style="margin-bottom:16px;">
+      Close the other tab and enter the verification code below to claim your points.
+    </div>
+    <div class="form-group" style="text-align:left; margin-bottom:16px;">
+      <label for="verifyCodeInput" style="font-size:13px; font-weight:600; color:#0f172a; margin-bottom:8px; display:block;">Verification Code:</label>
+      <div class="input-wrapper">
+        <i class="fa-solid fa-key input-icon"></i>
+        <input type="text" id="verifyCodeInput" placeholder="Enter the admin code" autocomplete="off">
+      </div>
+    </div>
+    <div id="verifyModalStatus" style="display:none;"></div>
+    <button id="verifyBtn" class="btn btn-success" onclick="verifyTaskAndReward()" style="width:100%; margin-bottom:10px;">
+      <i class="fa-solid fa-circle-check"></i> Verify & Claim Points
+    </button>
+    <button onclick="closeVerifyModal()" class="btn btn-outline" style="width:100%;">Close</button>
+  </div>
+</div>
 
 <div class="container" style="display:none;">
     <div class="header">
-        <div class="badge"><i class="fa-solid fa-shield-halved"></i> 100% Verified Tasks</div>
+        <div class="badge"><i class="fa-solid fa-rocket"></i> Smart Earn Official</div>
         <h2><i class="fa-solid fa-globe" style="color: var(--primary-color);"></i> Web Visit Portal</h2>
-        <p>সহজে ওয়েবসাইট ভিউ সম্পন্ন করুন এবং পয়েন্ট জমা করুন</p>
+        <p>Easily complete website visits and earn points</p>
         <p id="siteDateDisplay" style="font-size:12px;color:#64748b;margin-top:4px;"></p>
     </div>
     <div class="content">
         <div id="loginSection">
             <div class="form-group">
-                <label for="userPhone">মোবাইল নম্বর</label>
+                <label for="userPhone">Your Account ID</label>
                 <div class="input-wrapper">
                     <i class="fa-solid fa-phone input-icon"></i>
-                    <input type="tel" id="userPhone" placeholder="01XXXXXXXXX" maxlength="11">
+                    <input type="tel" id="userPhone" placeholder="Main App Register Number" maxlength="11">
                 </div>
             </div>
-            <button id="loginBtn" class="btn" onclick="loginUser()"><span>লগইন করুন</span> <i class="fa-solid fa-arrow-right-to-bracket"></i></button>
+            <button id="loginBtn" class="btn" onclick="loginUser()"><span>Login</span> <i class="fa-solid fa-arrow-right-to-bracket"></i></button>
             <div id="loginStatusMsg" class="status-message"></div>
         </div>
         <div id="taskSection" class="hidden">
             <div class="user-bar">
-                <span class="status-pill">স্ট্যাটাস: <span class="status-dot"></span> <strong style="color: var(--success-color);">Active</strong></span>
-                <button class="logout-btn" onclick="logoutUser()"><i class="fa-solid fa-arrow-right-from-bracket"></i> লগআউট</button>
+                <span class="status-pill">Status: <span class="status-dot"></span> <strong style="color: var(--success-color);">Active</strong></span>
+                <button class="logout-btn" onclick="showLogoutModal()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
             </div>
             <div class="user-stats-card">
                 <div class="stats-box">
-                    <span class="stats-label"><i class="fa-solid fa-list-check"></i> মোট নির্ধারিত কাজ</span>
+                    <span class="stats-label"><i class="fa-solid fa-list-check"></i> Total Assigned Tasks</span>
                     <span class="stats-value" id="adminTotalTasks">0</span>
                 </div>
                 <div class="stats-divider"></div>
                 <div class="stats-box">
-                    <span class="stats-label"><i class="fa-solid fa-circle-check"></i> আপনার সম্পন্ন কাজ</span>
+                    <span class="stats-label"><i class="fa-solid fa-circle-check"></i> Your Completed Tasks</span>
                     <span class="stats-value" id="userCompletedTasks">0</span>
                 </div>
             </div>
             <div class="user-stats-card" style="margin-bottom:16px;">
                 <div class="stats-box">
-                    <span class="stats-label"><i class="fa-solid fa-list"></i> বাকি কাজ</span>
+                    <span class="stats-label"><i class="fa-solid fa-list"></i> Remaining Tasks</span>
                     <span class="stats-value" id="remainingCount" style="color:#059669;">0</span>
                 </div>
                 <div class="stats-divider"></div>
                 <div class="stats-box">
-                    <span class="stats-label"><i class="fa-solid fa-clock"></i> ঘণ্টার বাকি</span>
+                    <span class="stats-label"><i class="fa-solid fa-clock"></i> Hourly Remaining</span>
                     <span class="stats-value" id="hourlyRemaining" style="color:#2563eb;">—</span>
                 </div>
             </div>
             <div id="captchaBox" class="captcha-card">
-                <div class="captcha-title"><i class="fa-solid fa-lock"></i> নিরাপত্তা যাচাইকরণের জন্য উত্তর দিন:</div>
+                <div class="captcha-title"><i class="fa-solid fa-lock"></i> Security verification — answer the question:</div>
                 <div class="captcha-math" id="mathQuestion">0 + 0 = ?</div>
-                <div class="input-wrapper"><input type="number" id="mathAnswer" placeholder="সঠিক উত্তরটি লিখুন"></div>
+                <div class="input-wrapper"><input type="number" id="mathAnswer" placeholder="Enter the correct answer"></div>
             </div>
             <div id="loadingSection" class="hidden loading-overlay">
                 <div class="loading-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i></div>
-                <p style="font-weight:600; color:var(--text-main);">ওয়েবসাইট খোলা হচ্ছে...</p>
-                <p style="font-size:13px; color:var(--text-muted); margin-top:6px;">অনুগ্রহ করে অপেক্ষা করুন</p>
+                <p style="font-weight:600; color:var(--text-main);">Opening website...</p>
+                <p style="font-size:13px; color:var(--text-muted); margin-top:6px;">Please wait</p>
             </div>
-            <button id="visitBtn" class="btn" onclick="startVisitTask()"><i class="fa-solid fa-arrow-up-right-from-square"></i> ওয়েবসাইট ভিজিট করুন</button>
+            <button id="visitBtn" class="btn" onclick="startVisitTask()"><i class="fa-solid fa-arrow-up-right-from-square"></i> Visit Website</button>
             <div id="timerSection" class="hidden" style="text-align: center;">
-                <div class="instruction-box"><i class="fa-solid fa-info-circle"></i> নতুন ট্যাবে ওয়েবসাইট খোলা হয়েছে। সেখানে <strong>থাকুন</strong> এবং টাইমার শেষ হওয়া পর্যন্ত অপেক্ষা করুন। তারপর এখানে ফিরে এসে ভেরিফিকেশন কোড দিন।</div>
-                <div class="timer-badge"><i class="fa-solid fa-stopwatch"></i> অপেক্ষা করুন: <span id="timerCount">0</span> সেকেন্ড</div>
-            </div>
-            <div id="timerFinishedNotice" class="hidden timer-finished-notice">
-                <strong>⏰ টাইম শেষ হয়েছে!</strong>
-                অন্য ট্যাব বন্ধ করে নিচের ভেরিফিকেশন কোড দিয়ে যাচাই করুন।
-            </div>
-            <div id="verifySection" class="hidden" style="margin-top: 15px;">
-                <div class="form-group">
-                    <label for="verifyCodeInput">ভেরিফিকেশন কোড / নাম্বার দিন:</label>
-                    <div class="input-wrapper"><i class="fa-solid fa-key input-icon"></i><input type="text" id="verifyCodeInput" placeholder="অ্যাডমিন যে কোড দিয়েছে সেটি লিখুন" autocomplete="off"></div>
-                </div>
-                <button id="verifyBtn" class="btn btn-success" onclick="verifyTaskAndReward()"><i class="fa-solid fa-circle-check"></i> যাচাই ও পয়েন্ট ক্লেইম করুন</button>
+                <div class="instruction-box"><i class="fa-solid fa-info-circle"></i> The website has opened in a new tab. Please <strong>stay</strong> on that tab and wait until the timer finishes. Then return here to enter the verification code.</div>
+                <div class="timer-badge"><i class="fa-solid fa-stopwatch"></i> Please wait: <span id="timerCount">0</span> seconds</div>
             </div>
             <div id="statusMsg" class="status-message"></div>
         </div>
-        <div class="footer-note"><i class="fa-solid fa-lock"></i> Secure Encrypted Verification System</div>
+        <div class="footer-note"><i class="fa-solid fa-user"></i> Hello User, please follow the rules.</div>
     </div>
 </div>
 <script>
@@ -284,7 +359,7 @@
     let currentPhone = "", targetUrl = "", requiredTime = 0, rewardPoints = 0, totalLimit = 0, currentVisits = 0, verifyCode = "", hourlyLimit = 0;
     let num1 = 0, num2 = 0, correctAnswer = 0, timerInterval = null, statusTimeout = null, isTimerFinished = false, activeUserHeartbeat = null;
     const TAB_LOCK_KEY = 'active_task_tab_timestamp';
-    let taskStartTime = 0; // extra security for points
+    let taskStartTime = 0;
 
     const ORIGINAL_TITLE = document.title || "Web Visit Portal";
 
@@ -298,40 +373,120 @@
         return id;
     }
 
-    // ===== Hourly Limit =====
-    function getCurrentHourKey() {
-        const d = new Date();
-        return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0') + '-' + String(d.getHours()).padStart(2,'0');
-    }
-    function getHourlyCompleted() {
-        if (!currentPhone) return 0;
+    // ===== Hourly Limit (countdown starts only after the last task of the limit is completed) =====
+    const HOUR_MS = 60 * 60 * 1000;
+    let hourlyCountdownInterval = null;
+
+    function getHourlyData() {
+        if (!currentPhone) return { count: 0, lockUntil: 0 };
         try {
-            const raw = localStorage.getItem('hourly_data_' + currentPhone);
-            if (!raw) return 0;
+            const raw = localStorage.getItem('hourly_data_v2_' + currentPhone);
+            if (!raw) return { count: 0, lockUntil: 0 };
             const data = JSON.parse(raw);
-            if (data.hourKey === getCurrentHourKey()) return data.count || 0;
-            return 0;
-        } catch(e) { return 0; }
+            return {
+                count: parseInt(data.count) || 0,
+                lockUntil: parseInt(data.lockUntil) || 0
+            };
+        } catch(e) { return { count: 0, lockUntil: 0 }; }
     }
-    function setHourlyCompleted(count) {
+
+    function saveHourlyData(count, lockUntil) {
         if (!currentPhone) return;
-        localStorage.setItem('hourly_data_' + currentPhone, JSON.stringify({ hourKey: getCurrentHourKey(), count: count }));
+        localStorage.setItem('hourly_data_v2_' + currentPhone, JSON.stringify({
+            count: count,
+            lockUntil: lockUntil
+        }));
     }
+
+    function getHourlyCompleted() {
+        const data = getHourlyData();
+        const now = Date.now();
+        // If lock has expired, reset count
+        if (data.lockUntil > 0 && now >= data.lockUntil) {
+            saveHourlyData(0, 0);
+            return 0;
+        }
+        // If currently locked, treat as fully used
+        if (data.lockUntil > now) {
+            return hourlyLimit > 0 ? hourlyLimit : data.count;
+        }
+        return data.count;
+    }
+
     function incrementHourlyCompleted() {
-        setHourlyCompleted(getHourlyCompleted() + 1);
+        let data = getHourlyData();
+        const now = Date.now();
+
+        // Clear expired lock
+        if (data.lockUntil > 0 && now >= data.lockUntil) {
+            data = { count: 0, lockUntil: 0 };
+        }
+
+        data.count = (data.count || 0) + 1;
+
+        // When the last allowed task is completed → start full 1-hour cooldown from NOW
+        if (hourlyLimit > 0 && data.count >= hourlyLimit) {
+            data.lockUntil = now + HOUR_MS;
+            data.count = hourlyLimit;
+        }
+
+        saveHourlyData(data.count, data.lockUntil);
         updateHourlyUI();
     }
+
+    function getNextAvailableMs() {
+        const data = getHourlyData();
+        const now = Date.now();
+        if (data.lockUntil > now) {
+            return data.lockUntil - now;
+        }
+        return 0;
+    }
+
+    function formatCountdown(ms) {
+        if (ms <= 0) return '0:00';
+        const totalSec = Math.ceil(ms / 1000);
+        const m = Math.floor(totalSec / 60);
+        const s = totalSec % 60;
+        return m + ':' + String(s).padStart(2, '0');
+    }
+
     function updateHourlyUI() {
         const span = document.getElementById('hourlyRemaining');
         if (!span) return;
         if (hourlyLimit <= 0) {
-            span.innerText = 'সেট নেই';
+            span.innerText = 'Not Set';
             span.style.color = '#ef4444';
+            if (hourlyCountdownInterval) { clearInterval(hourlyCountdownInterval); hourlyCountdownInterval = null; }
             return;
         }
-        const left = Math.max(0, hourlyLimit - getHourlyCompleted());
+
+        const data = getHourlyData();
+        const now = Date.now();
+
+        // Lock active → show countdown (starts from ~59:59 after last task)
+        if (data.lockUntil > now) {
+            const remainingMs = data.lockUntil - now;
+            span.innerText = formatCountdown(remainingMs);
+            span.style.color = '#ef4444';
+            if (!hourlyCountdownInterval) {
+                hourlyCountdownInterval = setInterval(() => {
+                    updateHourlyUI();
+                }, 1000);
+            }
+            return;
+        }
+
+        // Lock expired → reset
+        if (data.lockUntil > 0 && now >= data.lockUntil) {
+            saveHourlyData(0, 0);
+        }
+
+        const completed = getHourlyData().count;
+        const left = Math.max(0, hourlyLimit - completed);
         span.innerText = left;
         span.style.color = left <= 0 ? '#ef4444' : '#2563eb';
+        if (hourlyCountdownInterval) { clearInterval(hourlyCountdownInterval); hourlyCountdownInterval = null; }
     }
 
     // ===== Fixed Timer =====
@@ -345,13 +500,13 @@
         const countEl = document.getElementById('fixedTimerCount');
         const textEl = document.getElementById('fixedTimerText');
         if (countEl) countEl.innerText = seconds;
-        if (textEl) textEl.innerText = 'অপেক্ষা করুন:';
-        document.title = '⏱ ' + seconds + 's | অপেক্ষা করুন';
+        if (textEl) textEl.innerText = 'Please wait:';
+        document.title = '⏱ ' + seconds + 's | Please wait';
     }
     function updateFixedTimer(seconds) {
         const countEl = document.getElementById('fixedTimerCount');
         if (countEl) countEl.innerText = seconds;
-        document.title = '⏱ ' + seconds + 's | অপেক্ষা করুন';
+        document.title = '⏱ ' + seconds + 's | Please wait';
     }
     function finishFixedTimer() {
         const bar = document.getElementById('fixedTimerBar');
@@ -362,9 +517,9 @@
         }
         const textEl = document.getElementById('fixedTimerText');
         const countEl = document.getElementById('fixedTimerCount');
-        if (textEl) textEl.innerText = '⏰ টাইম শেষ! ট্যাব বন্ধ করে ভেরিফাই করুন';
+        if (textEl) textEl.innerText = '⏰ Time finished! Close tab & verify';
         if (countEl) countEl.innerText = '✓';
-        document.title = '✅ টাইম শেষ! ভেরিফাই করুন';
+        document.title = '✅ Time finished! Verify now';
     }
     function hideFixedTimer() {
         const bar = document.getElementById('fixedTimerBar');
@@ -376,7 +531,7 @@
         document.title = ORIGINAL_TITLE;
     }
 
-    // ===== Country Restriction (same as before) =====
+    // ===== Country Restriction =====
     let userCountryCode = '';
     let userTimezone = '';
     let allowedCountries = ['AZ'];
@@ -391,61 +546,202 @@
         IR: '🇮🇷 Iran', GE: '🇬🇪 Georgia', CA: '🇨🇦 Canada', AU: '🇦🇺 Australia'
     };
 
-    async function fetchText(url, ms) {
-        const controller = new AbortController();
-        const t = setTimeout(() => controller.abort(), ms);
+    // ===== Fast Country Detection (10 APIs, first success wins, rest cancelled) =====
+    const GEO_CACHE_KEY = 'geo_cache_v1';
+    const GEO_CACHE_TTL = 15 * 60 * 1000; // 15 minutes cache
+
+    function getCachedGeo() {
         try {
-            const r = await fetch(url, { method: 'GET', cache: 'no-store', mode: 'cors', signal: controller.signal });
-            clearTimeout(t);
-            if (!r.ok) return null;
-            return await r.text();
-        } catch (e) { clearTimeout(t); return null; }
+            const raw = sessionStorage.getItem(GEO_CACHE_KEY);
+            if (!raw) return null;
+            const data = JSON.parse(raw);
+            if (data && data.ts && (Date.now() - data.ts) < GEO_CACHE_TTL && data.code) {
+                return data;
+            }
+        } catch (e) {}
+        return null;
     }
 
-    async function fetchJson(url, ms) {
-        const controller = new AbortController();
-        const t = setTimeout(() => controller.abort(), ms);
+    function setCachedGeo(code, tz) {
         try {
-            const r = await fetch(url, { method: 'GET', cache: 'no-store', mode: 'cors', signal: controller.signal });
-            clearTimeout(t);
-            if (!r.ok) return null;
-            return await r.json();
-        } catch (e) { clearTimeout(t); return null; }
+            sessionStorage.setItem(GEO_CACHE_KEY, JSON.stringify({
+                code: code,
+                tz: tz || '',
+                ts: Date.now()
+            }));
+        } catch (e) {}
+    }
+
+    function isValidCountryCode(code) {
+        return code && typeof code === 'string' && /^[A-Z]{2}$/.test(code) && code !== 'XX' && code !== 'T1';
     }
 
     async function detectUserCountry() {
         userCountryCode = '';
         userTimezone = '';
         try { userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
-        try {
-            const text = await fetchText('https://www.cloudflare.com/cdn-cgi/trace', 4000);
-            if (text) {
-                const m = text.match(/loc=([A-Z]{2})/i);
-                if (m) userCountryCode = m[1].toUpperCase();
-            }
-        } catch (e) {}
-        if (!userCountryCode || userCountryCode === 'XX') {
-            const apis = [
-                { url: 'https://ipapi.co/json/', get: d => [(d.country_code || '').toUpperCase(), d.timezone || ''] },
-                { url: 'https://ipwho.is/', get: d => d.success !== false ? [(d.country_code || '').toUpperCase(), d.timezone || ''] : null },
-                { url: 'https://get.geojs.io/v1/ip/geo.json', get: d => [(d.country_code || '').toUpperCase(), d.timezone || ''] },
-                { url: 'https://api.country.is/', get: d => [(d.country || '').toUpperCase(), ''] }
-            ];
-            const results = await Promise.all(apis.map(async (a) => {
-                try {
-                    const d = await fetchJson(a.url, 3500);
-                    if (!d) return null;
-                    return a.get(d);
-                } catch (e) { return null; }
-            }));
-            for (const r of results) {
-                if (r && r[0] && /^[A-Z]{2}$/.test(r[0]) && r[0] !== 'XX') {
-                    userCountryCode = r[0];
-                    if (r[1]) userTimezone = r[1];
-                    break;
-                }
-            }
+
+        // Use cache if available (fast for refresh / many users)
+        const cached = getCachedGeo();
+        if (cached && isValidCountryCode(cached.code)) {
+            userCountryCode = cached.code;
+            if (cached.tz) userTimezone = cached.tz;
+            return userCountryCode;
         }
+
+        const controllers = [];
+        const TIMEOUT = 2800;
+
+        function makeController() {
+            const c = new AbortController();
+            controllers.push(c);
+            setTimeout(() => { try { c.abort(); } catch(e) {} }, TIMEOUT);
+            return c;
+        }
+
+        // 10 solid free Geo-IP sources (CORS friendly)
+        const sources = [
+            // 1. Cloudflare (very fast & reliable)
+            async () => {
+                const c = makeController();
+                const r = await fetch('https://www.cloudflare.com/cdn-cgi/trace', { signal: c.signal, cache: 'no-store' });
+                if (!r.ok) return null;
+                const text = await r.text();
+                const m = text.match(/loc=([A-Z]{2})/i);
+                return m ? [m[1].toUpperCase(), ''] : null;
+            },
+            // 2. ipwho.is
+            async () => {
+                const c = makeController();
+                const r = await fetch('https://ipwho.is/', { signal: c.signal, cache: 'no-store' });
+                if (!r.ok) return null;
+                const d = await r.json();
+                if (d && d.success !== false && d.country_code) {
+                    return [String(d.country_code).toUpperCase(), d.timezone || ''];
+                }
+                return null;
+            },
+            // 3. ipapi.co
+            async () => {
+                const c = makeController();
+                const r = await fetch('https://ipapi.co/json/', { signal: c.signal, cache: 'no-store' });
+                if (!r.ok) return null;
+                const d = await r.json();
+                if (d && d.country_code) return [String(d.country_code).toUpperCase(), d.timezone || ''];
+                return null;
+            },
+            // 4. geojs.io
+            async () => {
+                const c = makeController();
+                const r = await fetch('https://get.geojs.io/v1/ip/geo.json', { signal: c.signal, cache: 'no-store' });
+                if (!r.ok) return null;
+                const d = await r.json();
+                if (d && d.country_code) return [String(d.country_code).toUpperCase(), d.timezone || ''];
+                return null;
+            },
+            // 5. country.is
+            async () => {
+                const c = makeController();
+                const r = await fetch('https://api.country.is/', { signal: c.signal, cache: 'no-store' });
+                if (!r.ok) return null;
+                const d = await r.json();
+                if (d && d.country) return [String(d.country).toUpperCase(), ''];
+                return null;
+            },
+            // 6. freeipapi.com
+            async () => {
+                const c = makeController();
+                const r = await fetch('https://freeipapi.com/api/json', { signal: c.signal, cache: 'no-store' });
+                if (!r.ok) return null;
+                const d = await r.json();
+                if (d && (d.countryCode || d.country_code)) {
+                    return [String(d.countryCode || d.country_code).toUpperCase(), d.timeZones?.[0] || d.timezone || ''];
+                }
+                return null;
+            },
+            // 7. ip.sb
+            async () => {
+                const c = makeController();
+                const r = await fetch('https://api.ip.sb/geoip', { signal: c.signal, cache: 'no-store' });
+                if (!r.ok) return null;
+                const d = await r.json();
+                if (d && d.country_code) return [String(d.country_code).toUpperCase(), d.timezone || ''];
+                return null;
+            },
+            // 8. seeip.org
+            async () => {
+                const c = makeController();
+                const r = await fetch('https://api.seeip.org/geoip', { signal: c.signal, cache: 'no-store' });
+                if (!r.ok) return null;
+                const d = await r.json();
+                if (d && d.country_code) return [String(d.country_code).toUpperCase(), ''];
+                return null;
+            },
+            // 9. ipwhois.app
+            async () => {
+                const c = makeController();
+                const r = await fetch('https://ipwhois.app/json/', { signal: c.signal, cache: 'no-store' });
+                if (!r.ok) return null;
+                const d = await r.json();
+                if (d && d.success !== false && d.country_code) {
+                    return [String(d.country_code).toUpperCase(), d.timezone || ''];
+                }
+                return null;
+            },
+            // 10. ipapi.is
+            async () => {
+                const c = makeController();
+                const r = await fetch('https://api.ipapi.is/', { signal: c.signal, cache: 'no-store' });
+                if (!r.ok) return null;
+                const d = await r.json();
+                if (d && d.location && d.location.country_code) {
+                    return [String(d.location.country_code).toUpperCase(), d.location.timezone || ''];
+                }
+                if (d && d.country_code) return [String(d.country_code).toUpperCase(), d.timezone || ''];
+                return null;
+            }
+        ];
+
+        // Race: first valid result wins, then abort all remaining
+        const winner = await new Promise((resolve) => {
+            let settled = false;
+            let pending = sources.length;
+
+            sources.forEach((fn) => {
+                fn().then((result) => {
+                    if (settled) return;
+                    pending--;
+                    if (result && isValidCountryCode(result[0])) {
+                        settled = true;
+                        // Abort all other in-flight requests
+                        controllers.forEach(c => { try { c.abort(); } catch(e) {} });
+                        resolve(result);
+                    } else if (pending <= 0) {
+                        resolve(null);
+                    }
+                }).catch(() => {
+                    if (settled) return;
+                    pending--;
+                    if (pending <= 0) resolve(null);
+                });
+            });
+
+            // Hard timeout safety
+            setTimeout(() => {
+                if (!settled) {
+                    settled = true;
+                    controllers.forEach(c => { try { c.abort(); } catch(e) {} });
+                    resolve(null);
+                }
+            }, TIMEOUT + 200);
+        });
+
+        if (winner && isValidCountryCode(winner[0])) {
+            userCountryCode = winner[0];
+            if (winner[1]) userTimezone = winner[1];
+            setCachedGeo(userCountryCode, userTimezone);
+        }
+
         if (!userTimezone) {
             try { userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
         }
@@ -486,11 +782,11 @@
         const btn = document.getElementById('countryRetryBtn');
 
         if (listEl) listEl.innerHTML = (allowedCountries || []).map(c => (COUNTRY_NAMES[c] || c)).join('<br>') || '—';
-        if (userEl) userEl.innerText = COUNTRY_NAMES[userCode] || userCode || 'অজানা';
-        if (titleEl) titleEl.innerText = 'এই দেশ থেকে প্রবেশাধিকার নেই';
+        if (userEl) userEl.innerText = COUNTRY_NAMES[userCode] || userCode || 'Unknown';
+        if (titleEl) titleEl.innerText = 'Access Denied from this Country';
         if (iconEl) iconEl.innerText = '🌍';
-        if (statusEl) statusEl.innerText = extraMsg || 'শুধু অনুমোদিত দেশের ব্যবহারকারীরা এই পোর্টাল ব্যবহার করতে পারবেন।';
-        if (btn) { btn.style.display = ''; btn.disabled = false; btn.innerHTML = '🔄 আবার চেষ্টা করুন'; }
+        if (statusEl) statusEl.innerText = extraMsg || 'Only users from allowed countries can use this portal.';
+        if (btn) { btn.style.display = ''; btn.disabled = false; btn.innerHTML = '🔄 Try Again'; }
         screen.style.display = 'flex';
         const cont = document.querySelector('.container');
         if (cont) cont.style.display = 'none';
@@ -502,7 +798,7 @@
         const screen = document.getElementById('timezoneBlockScreen');
         if (!screen) return;
         const tzEl = document.getElementById('tzUserDisplay');
-        if (tzEl) tzEl.innerText = userTimezone || 'অজানা';
+        if (tzEl) tzEl.innerText = userTimezone || 'Unknown';
         screen.style.display = 'flex';
         const cont = document.querySelector('.container');
         if (cont) cont.style.display = 'none';
@@ -610,9 +906,9 @@
         if (!silent) {
             hideAllBlockScreens();
             updateAllowedCountriesUI();
-            if (titleEl) titleEl.innerText = 'যাচাই করা হচ্ছে...';
+            if (titleEl) titleEl.innerText = 'Verifying...';
             if (iconEl) iconEl.innerText = '⏳';
-            if (statusEl) statusEl.innerText = 'নেটওয়ার্ক ও লোকেশন যাচাই চলছে...';
+            if (statusEl) statusEl.innerText = 'Checking network & location...';
             if (btn) { btn.style.display = 'none'; btn.disabled = true; }
             if (screen) screen.style.display = 'flex';
             if (cont) cont.style.display = 'none';
@@ -621,7 +917,7 @@
         try {
             await detectUserCountry();
             const userEl = document.getElementById('userCountryDisplay');
-            if (userEl) userEl.innerText = COUNTRY_NAMES[userCountryCode] || userCountryCode || 'অজানা';
+            if (userEl) userEl.innerText = COUNTRY_NAMES[userCountryCode] || userCountryCode || 'Unknown';
 
             const countryPass = isCountryOk();
             const timePass = isTimezoneAllowed();
@@ -629,8 +925,8 @@
             if (!countryPass) {
                 countryAlreadyPassed = false;
                 showCountryBlock(userCountryCode, !userCountryCode
-                    ? 'লোকেশন সনাক্ত করা যায়নি। ইন্টারনেট সংযোগ যাচাই করে পুনরায় চেষ্টা করুন।'
-                    : 'আপনার দেশ অনুমোদিত তালিকায় নেই। শুধু নির্ধারিত দেশের ব্যবহারকারীরা প্রবেশ করতে পারবেন।');
+                    ? 'Could not detect location. Please check your internet connection and try again.'
+                    : 'Your country is not in the allowed list. Only users from designated countries can access.');
                 isCountryChecking = false;
                 return false;
             }
@@ -644,7 +940,7 @@
 
             if (!isCountryOk() || !isTimezoneAllowed()) {
                 countryAlreadyPassed = false;
-                if (!isCountryOk()) showCountryBlock(userCountryCode, 'দেশ যাচাই ব্যর্থ।');
+                if (!isCountryOk()) showCountryBlock(userCountryCode, 'Country verification failed.');
                 else showTimezoneBlock();
                 isCountryChecking = false;
                 return false;
@@ -655,7 +951,7 @@
             isCountryChecking = false;
             return true;
         } catch (e) {
-            showCountryBlock(userCountryCode || '', 'যাচাই প্রক্রিয়ায় সমস্যা হয়েছে। অনুগ্রহ করে পুনরায় চেষ্টা করুন।');
+            showCountryBlock(userCountryCode || '', 'There was a problem during verification. Please try again.');
             isCountryChecking = false;
             return false;
         }
@@ -666,15 +962,12 @@
         if (countryAlreadyPassed) {
             const savedPhone = localStorage.getItem("user_phone");
             if (savedPhone) {
-                currentPhone = savedPhone;
-                checkDailyReset();
-                // re-check ban + device
-                checkBanAndDevice(savedPhone).then(ok => {
-                    if (ok) {
-                        showDashboard();
-                        registerActiveUser();
-                    }
-                });
+                await restoreSessionIfPossible();
+            } else {
+                const cont = document.querySelector('.container');
+                if (cont) cont.style.display = '';
+                document.getElementById("loginSection").classList.remove("hidden");
+                document.getElementById("taskSection").classList.add("hidden");
             }
         }
     }
@@ -702,7 +995,7 @@
                     }
                 } else if (!isCountryOk()) {
                     countryAlreadyPassed = false;
-                    showCountryBlock(userCountryCode, 'আপনার দেশ অনুমোদিত নয়। অনুমোদিত দেশ থেকে প্রবেশ করুন।');
+                    showCountryBlock(userCountryCode, 'Your country is not allowed. Please access from an allowed country.');
                 } else {
                     countryAlreadyPassed = false;
                     showTimezoneBlock();
@@ -714,7 +1007,6 @@
     // ===== Ban + Device Check =====
     function checkBanAndDevice(phone) {
         return new Promise((resolve) => {
-            // 1. Check banned
             webDB.ref("bannedUsers/" + phone).once("value", (banSnap) => {
                 if (banSnap.exists()) {
                     showBannedScreen();
@@ -722,12 +1014,10 @@
                     return;
                 }
 
-                // 2. Check device lock
                 const myDeviceId = getDeviceId();
                 webDB.ref("userDevices/" + phone).once("value", (devSnap) => {
                     const existing = devSnap.val();
                     if (existing && existing.deviceId && existing.deviceId !== myDeviceId) {
-                        // Multi-device attempt → log it
                         webDB.ref("multiDeviceLogs").push({
                             phone: phone,
                             oldDevice: existing.deviceId,
@@ -740,7 +1030,6 @@
                         return;
                     }
 
-                    // Register / update this device
                     webDB.ref("userDevices/" + phone).set({
                         deviceId: myDeviceId,
                         lastLogin: firebase.database.ServerValue.TIMESTAMP,
@@ -752,7 +1041,6 @@
         });
     }
 
-    // Listen for force logout (individual or all)
     function listenForceLogout(phone) {
         webDB.ref("forceLogout/" + phone).on("value", (snap) => {
             const ts = snap.val();
@@ -760,12 +1048,11 @@
             const last = localStorage.getItem("last_forced_logout_" + phone);
             if (!last || parseInt(last) < ts) {
                 localStorage.setItem("last_forced_logout_" + phone, ts);
-                alert("অ্যাডমিন কর্তৃক আপনার সেশনটি শেষ করা হয়েছে। অনুগ্রহ করে পুনরায় লগইন করুন।");
+                alert("Your session has been ended by the admin. Please login again.");
                 logoutUser();
             }
         });
 
-        // Also listen ban in realtime
         webDB.ref("bannedUsers/" + phone).on("value", (snap) => {
             if (snap.exists()) {
                 showBannedScreen();
@@ -788,6 +1075,36 @@
     }
 
     let initialCheckDone = false;
+    let sessionRestored = false;
+
+    async function restoreSessionIfPossible() {
+        const savedPhone = localStorage.getItem("user_phone");
+        if (!savedPhone) return false;
+        if (sessionRestored) return true;
+
+        currentPhone = savedPhone;
+        checkDailyReset();
+
+        try {
+            const allowed = await checkBanAndDevice(savedPhone);
+            if (!allowed) return false; // banned or device conflict screen already shown
+
+            showDashboard();
+            registerActiveUser();
+            listenForceLogout(savedPhone);
+            updateHourlyUI();
+            sessionRestored = true;
+            return true;
+        } catch (e) {
+            // On error still try to show dashboard to avoid login flash
+            showDashboard();
+            registerActiveUser();
+            listenForceLogout(savedPhone);
+            updateHourlyUI();
+            sessionRestored = true;
+            return true;
+        }
+    }
 
     window.onload = async function() {
         (function() {
@@ -798,6 +1115,12 @@
             const el = document.getElementById('siteDateDisplay');
             if (el) el.innerText = dd + '-' + mm + '-' + yyyy;
         })();
+
+        // Restore phone early
+        const earlyPhone = localStorage.getItem("user_phone");
+        if (earlyPhone) {
+            currentPhone = earlyPhone;
+        }
 
         startBackgroundChecks();
 
@@ -810,12 +1133,11 @@
             }
             updateAllowedCountriesUI();
 
-            // Force logout all
             if (data.logoutAllTimestamp && currentPhone) {
                 const lastLogout = localStorage.getItem("last_forced_logout_" + currentPhone);
                 if (!lastLogout || parseInt(lastLogout) < data.logoutAllTimestamp) {
                     localStorage.setItem("last_forced_logout_" + currentPhone, data.logoutAllTimestamp);
-                    alert("অ্যাডমিন কর্তৃক আপনার সেশনটি শেষ করা হয়েছে। অনুগ্রহ করে পুনরায় লগইন করুন।");
+                    alert("Your session has been ended by the admin. Please login again.");
                     logoutUser();
                     return;
                 }
@@ -838,22 +1160,37 @@
                     if (ok) {
                         const savedPhone = localStorage.getItem("user_phone");
                         if (savedPhone) {
-                            currentPhone = savedPhone;
-                            checkDailyReset();
-                            const allowed = await checkBanAndDevice(savedPhone);
-                            if (allowed) {
-                                showDashboard();
-                                registerActiveUser();
-                                listenForceLogout(savedPhone);
-                            }
+                            await restoreSessionIfPossible();
+                        } else {
+                            // No saved session → show login
+                            const cont = document.querySelector('.container');
+                            if (cont) cont.style.display = '';
+                            document.getElementById("loginSection").classList.remove("hidden");
+                            document.getElementById("taskSection").classList.add("hidden");
                         }
                     }
                 } catch (e) {
-                    showCountryBlock('', 'যাচাই প্রক্রিয়ায় সমস্যা হয়েছে। পুনরায় চেষ্টা করুন।');
+                    // Even on error, try restore if phone exists
+                    const savedPhone = localStorage.getItem("user_phone");
+                    if (savedPhone) {
+                        await restoreSessionIfPossible();
+                    } else {
+                        showCountryBlock('', 'There was a problem during verification. Please try again.');
+                    }
                 }
             } else if (countryAlreadyPassed) {
+                // Subsequent Firebase updates — keep session alive
                 const cont = document.querySelector('.container');
                 if (cont) cont.style.display = '';
+                const savedPhone = localStorage.getItem("user_phone");
+                if (savedPhone) {
+                    currentPhone = savedPhone;
+                    document.getElementById("loginSection").classList.add("hidden");
+                    document.getElementById("taskSection").classList.remove("hidden");
+                    if (!sessionRestored) {
+                        await restoreSessionIfPossible();
+                    }
+                }
             }
         });
     };
@@ -862,22 +1199,21 @@
         const phoneInput = document.getElementById("userPhone");
         const loginBtn = document.getElementById("loginBtn");
         const phone = phoneInput.value.trim();
-        if (phone.length < 11) { showStatus("সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন।", "danger", 3000, "loginStatusMsg"); return; }
-        setButtonLoading(loginBtn, true, "লগইন হচ্ছে...");
+        if (phone.length < 11) { showStatus("Please enter a valid 11-digit mobile number.", "danger", 3000, "loginStatusMsg"); return; }
+        setButtonLoading(loginBtn, true, "Logging in...");
         phoneInput.disabled = true;
 
         mainDB.ref("users/" + phone).once("value", async (snapshot) => {
             if (!snapshot.exists()) {
-                showStatus("এই নম্বরটি মেইন অ্যাপে নিবন্ধিত নয়।", "danger", 3000, "loginStatusMsg");
-                setButtonLoading(loginBtn, false, "লগইন করুন");
+                showStatus("This number is not registered in the main app.", "danger", 3000, "loginStatusMsg");
+                setButtonLoading(loginBtn, false, "Login");
                 phoneInput.disabled = false;
                 return;
             }
 
-            // Ban + Device check
             const allowed = await checkBanAndDevice(phone);
             if (!allowed) {
-                setButtonLoading(loginBtn, false, "লগইন করুন");
+                setButtonLoading(loginBtn, false, "Login");
                 phoneInput.disabled = false;
                 return;
             }
@@ -889,8 +1225,8 @@
             listenForceLogout(phone);
             showDashboard();
         }).catch(() => {
-            showStatus("নেটওয়ার্ক সমস্যা। আবার চেষ্টা করুন।", "danger", 3000, "loginStatusMsg");
-            setButtonLoading(loginBtn, false, "লগইন করুন");
+            showStatus("Network problem. Please try again.", "danger", 3000, "loginStatusMsg");
+            setButtonLoading(loginBtn, false, "Login");
             phoneInput.disabled = false;
         });
     }
@@ -921,7 +1257,6 @@
             ip: ip || 'unknown'
         };
         webDB.ref("activeUsers/" + currentPhone).set(payload);
-        // Also log IP
         if (ip) {
             webDB.ref("ipLogs").push({
                 phone: currentPhone,
@@ -944,9 +1279,32 @@
     function showDashboard() {
         document.getElementById("loginSection").classList.add("hidden");
         document.getElementById("taskSection").classList.remove("hidden");
-        setButtonLoading(document.getElementById("visitBtn"), true, "তথ্য লোড হচ্ছে...");
+        const cont = document.querySelector('.container');
+        if (cont) cont.style.display = '';
+        setButtonLoading(document.getElementById("visitBtn"), true, "Loading data...");
         listenToAdminSettings();
         fetchUserCompletedCount();
+        updateHourlyUI();
+    }
+
+    // ===== Logout Confirmation =====
+    function showLogoutModal() {
+        const modal = document.getElementById("logoutModal");
+        if (modal) {
+            modal.classList.add("show");
+            modal.style.display = "flex";
+        }
+    }
+    function closeLogoutModal() {
+        const modal = document.getElementById("logoutModal");
+        if (modal) {
+            modal.classList.remove("show");
+            modal.style.display = "none";
+        }
+    }
+    function confirmLogout() {
+        closeLogoutModal();
+        logoutUser();
     }
 
     function logoutUser() {
@@ -972,7 +1330,7 @@
                 const lastLogout = localStorage.getItem("last_forced_logout_" + currentPhone);
                 if (!lastLogout || parseInt(lastLogout) < data.logoutAllTimestamp) {
                     localStorage.setItem("last_forced_logout_" + currentPhone, data.logoutAllTimestamp);
-                    alert("অ্যাডমিন কর্তৃক আপনার সেশনটি শেষ করা হয়েছে। অনুগ্রহ করে পুনরায় লগইন করুন।");
+                    alert("Your session has been ended by the admin. Please login again.");
                     logoutUser();
                     return;
                 }
@@ -1006,17 +1364,17 @@
             updateHourlyUI();
 
             if (hourlyLimit <= 0) {
-                disableTaskSystem("📢 অফিসিয়াল নোটিশ: কাজের ঘণ্টার লিমিট সেট করা হয়নি। অ্যাডমিন এখনো প্রতি ঘণ্টায় কত কাজ করা যাবে তা নির্ধারণ করেননি।");
+                disableTaskSystem("📢 Official Notice: Hourly task limit is not set. Admin has not yet defined how many tasks can be done per hour.");
             } else if (!targetUrl) {
-                disableTaskSystem("বর্তমানে কোনো লিংক সেট করা নেই — Not Available");
+                disableTaskSystem("No link is currently set — Not Available");
             } else if (!verifyCode) {
-                disableTaskSystem("ভেরিফিকেশন কোড সেট করা নেই — Not Available");
+                disableTaskSystem("Verification code is not set — Not Available");
             } else if (totalLimit > 0 && currentVisits >= totalLimit) {
-                disableTaskSystem("আজকের কাজের লিমিট শেষ। তাই আর আজ কাজ করতে পারবেন না!");
+                disableTaskSystem("Today's task limit has been reached. You cannot do more tasks today!");
             } else {
                 enableTaskSystem();
                 generateMathCaptcha();
-                setButtonLoading(visitBtn, false, "ওয়েবসাইট ভিজিট করুন");
+                setButtonLoading(visitBtn, false, "Visit Website");
             }
         });
     }
@@ -1054,44 +1412,51 @@
 
     function startVisitTask() {
         if (hourlyLimit <= 0) {
-            showStatus("📢 অফিসিয়াল নোটিশ: কাজের ঘণ্টার লিমিট সেট করা হয়নি।", "danger");
+            showStatus("📢 Official Notice: Hourly task limit is not set.", "danger");
             return;
         }
         if (getHourlyCompleted() >= hourlyLimit) {
-            showStatus("এই ঘণ্টার কাজের লিমিট শেষ হয়ে গেছে। পরের ঘণ্টায় আবার চেষ্টা করুন।", "danger");
+            const waitMs = getNextAvailableMs();
+            const waitText = waitMs > 0 ? " Please wait " + formatCountdown(waitMs) + "." : "";
+            showStatus("Hourly limit reached." + waitText, "danger");
             updateHourlyUI();
             return;
         }
         if (totalLimit <= 0 || currentVisits >= totalLimit) {
-            showStatus("কাজের সীমা শেষ হয়ে গেছে। আর কাজ করা যাবে না।", "danger");
+            showStatus("Task limit has been reached. No more tasks available.", "danger");
             return;
         }
         if (isAnotherTabActive()) {
-            showStatus("আপনি ইতোমধ্যে অন্য ট্যাবে একটি কাজ করছেন! সেটি শেষ করুন।", "danger");
+            showStatus("You are already doing a task in another tab! Please finish that first.", "danger");
             return;
         }
         const rawInput = document.getElementById("mathAnswer").value.trim();
-        if (rawInput === "") { showStatus("ক্যাপচা উত্তর প্রদান করুন।", "danger"); return; }
+        if (rawInput === "") { showStatus("Please answer the captcha.", "danger"); return; }
         const userAnswer = parseInt(rawInput);
         if (isNaN(userAnswer) || userAnswer !== correctAnswer) {
-            showStatus("ভুল উত্তর! পুনরায় চেষ্টা করুন।", "danger");
+            showStatus("Wrong answer! Please try again.", "danger");
             generateMathCaptcha();
             return;
         }
         document.getElementById("captchaBox").classList.add("hidden");
         document.getElementById("visitBtn").classList.add("hidden");
         document.getElementById("loadingSection").classList.remove("hidden");
-        document.getElementById("timerFinishedNotice").classList.add("hidden");
         hideFixedTimer();
         localStorage.setItem(TAB_LOCK_KEY, Date.now().toString());
-        taskStartTime = Date.now(); // for extra security
+        taskStartTime = Date.now();
+
+        // Today Total Visit: count every attempt when user starts the visit (correct or not)
+        webDB.ref("taskSettings/currentVisits").transaction((v) => (v || 0) + 1);
+        currentVisits = (currentVisits || 0) + 1;
+        const remainingEl = document.getElementById("remainingCount");
+        if (remainingEl) remainingEl.innerText = Math.max(0, (totalLimit || 0) - currentVisits);
+
         setTimeout(() => {
             document.getElementById("loadingSection").classList.add("hidden");
             window.open(targetUrl, "_blank");
             isTimerFinished = false;
             earlyReturnLogged = false;
             document.getElementById("timerSection").classList.remove("hidden");
-            document.getElementById("verifySection").classList.add("hidden");
             startTimer(requiredTime);
         }, 3000);
     }
@@ -1115,12 +1480,29 @@
                 isTimerFinished = true;
                 document.getElementById("timerSection").classList.add("hidden");
                 finishFixedTimer();
-                const finishedNotice = document.getElementById("timerFinishedNotice");
-                if (finishedNotice) finishedNotice.classList.remove("hidden");
-                const verifySec = document.getElementById("verifySection");
-                if (verifySec) { verifySec.classList.remove("hidden"); verifySec.style.display = "block"; }
+                // Show verification as popup/modal notice
+                showVerifyModal();
             }
         }, 1000);
+    }
+
+    // ===== Verification Modal =====
+    function showVerifyModal() {
+        const modal = document.getElementById("verifyModal");
+        if (modal) {
+            document.getElementById("verifyCodeInput").value = "";
+            hideVerifyModalStatus();
+            modal.classList.add("show");
+            modal.style.display = "flex";
+        }
+    }
+    function closeVerifyModal() {
+        const modal = document.getElementById("verifyModal");
+        if (modal) {
+            modal.classList.remove("show");
+            modal.style.display = "none";
+            hideVerifyModalStatus();
+        }
     }
 
     let earlyReturnLogged = false;
@@ -1138,15 +1520,9 @@
 
         const timerSec = document.getElementById("timerSection");
         if (timerSec) timerSec.classList.add("hidden");
-        const finishedNotice = document.getElementById("timerFinishedNotice");
-        if (finishedNotice) finishedNotice.classList.add("hidden");
-        const verifySec = document.getElementById("verifySection");
-        if (verifySec) {
-            verifySec.classList.add("hidden");
-            verifySec.style.display = "";
-        }
         hideFixedTimer();
         document.title = ORIGINAL_TITLE;
+        closeVerifyModal();
 
         if (currentPhone) logEarlyReturn(currentPhone);
         showEarlyReturnModal();
@@ -1204,11 +1580,9 @@
             const count = (d.date === today) ? ((d.count || 0) + 1) : 1;
             ref.set({ phone: phone, count: count, date: today, lastTime: firebase.database.ServerValue.TIMESTAMP });
 
-            // Auto Ban check
             webDB.ref("taskSettings/autoBanCount").once("value", (banSnap) => {
                 const limit = parseInt(banSnap.val()) || 0;
                 if (limit > 0 && count >= limit) {
-                    // Auto ban this user
                     webDB.ref("bannedUsers/" + phone).set({
                         banned: true,
                         bannedAt: firebase.database.ServerValue.TIMESTAMP,
@@ -1217,7 +1591,6 @@
                     });
                     webDB.ref("forceLogout/" + phone).set(firebase.database.ServerValue.TIMESTAMP);
                     webDB.ref("activeUsers/" + phone).remove();
-                    // Push notification for admin
                     webDB.ref("adminNotifications").push({
                         type: "auto_ban",
                         phone: phone,
@@ -1257,37 +1630,70 @@
         } catch (e) {}
     }
 
-    // ===== STRONGER POINTS CLAIM =====
+    // ===== Points Claim =====
+    let verifyModalStatusTimeout = null;
+    function showVerifyModalStatus(msg, type) {
+        const el = document.getElementById("verifyModalStatus");
+        if (!el) return;
+        const icon = type === "success" ? '<i class="fa-solid fa-circle-check"></i>' : '<i class="fa-solid fa-circle-exclamation"></i>';
+        el.className = "status-message " + (type === "success" ? "status-success" : "status-danger");
+        el.innerHTML = icon + " <span>" + msg + "</span>";
+        el.style.display = "flex";
+        el.style.margin = "0 0 12px 0";
+        el.style.padding = "12px 14px";
+        // Auto hide after 3 seconds like other notices
+        if (verifyModalStatusTimeout) clearTimeout(verifyModalStatusTimeout);
+        verifyModalStatusTimeout = setTimeout(() => {
+            hideVerifyModalStatus();
+        }, 3000);
+    }
+    function hideVerifyModalStatus() {
+        const el = document.getElementById("verifyModalStatus");
+        if (el) {
+            el.className = "";
+            el.innerHTML = "";
+            el.style.display = "none";
+            el.style.margin = "0";
+            el.style.padding = "0";
+            el.style.background = "transparent";
+            el.style.border = "none";
+            el.style.minHeight = "0";
+        }
+        if (verifyModalStatusTimeout) {
+            clearTimeout(verifyModalStatusTimeout);
+            verifyModalStatusTimeout = null;
+        }
+    }
+
     function verifyTaskAndReward() {
         const verifyBtn = document.getElementById("verifyBtn");
         const codeInput = document.getElementById("verifyCodeInput");
         const userCode = codeInput.value.trim();
 
-        // Strict checks before giving points
-        if (!userCode) { showStatus("ভেরিফিকেশন কোড দিন।", "danger"); return; }
-        if (userCode !== verifyCode) { showStatus("ভুল কোড! সঠিক ভেরিফিকেশন কোড দিন।", "danger"); return; }
+        hideVerifyModalStatus();
+
+        if (!userCode) { showVerifyModalStatus("Please enter the verification code.", "danger"); return; }
+        if (userCode !== verifyCode) { showVerifyModalStatus("Wrong code! Please enter the correct verification code.", "danger"); return; }
         if (!isTimerFinished) {
-            showStatus("টাইমার শেষ হওয়ার আগে পয়েন্ট ক্লেইম করা যাবে না।", "danger");
+            showVerifyModalStatus("You cannot claim points before the timer finishes.", "danger");
             return;
         }
-        // Extra time check: must have waited at least requiredTime
         const elapsed = (Date.now() - taskStartTime) / 1000;
         if (elapsed < (requiredTime - 2)) {
-            showStatus("পর্যাপ্ত সময় অপেক্ষা করা হয়নি। পয়েন্ট দেওয়া যাবে না।", "danger");
+            showVerifyModalStatus("Insufficient waiting time. Points cannot be awarded.", "danger");
             return;
         }
-        if (currentVisits >= totalLimit) { showStatus("কাজের সীমা শেষ হয়ে গেছে।", "danger"); return; }
-        if (hourlyLimit <= 0) { showStatus("📢 অফিসিয়াল নোটিশ: কাজের ঘণ্টার লিমিট সেট করা হয়নি।", "danger"); return; }
-        if (getHourlyCompleted() >= hourlyLimit) { showStatus("এই ঘণ্টার কাজের লিমিট শেষ হয়ে গেছে।", "danger"); return; }
+        if (currentVisits >= totalLimit) { showVerifyModalStatus("Task limit has been reached.", "danger"); return; }
+        if (hourlyLimit <= 0) { showVerifyModalStatus("📢 Official Notice: Hourly task limit is not set.", "danger"); return; }
+        if (getHourlyCompleted() >= hourlyLimit) { showVerifyModalStatus("Hourly limit reached. Please wait for the cooldown.", "danger"); return; }
 
-        setButtonLoading(verifyBtn, true, "যাচাই করা হচ্ছে...");
+        setButtonLoading(verifyBtn, true, "Verifying...");
         codeInput.disabled = true;
 
-        // Final transaction — only after all checks pass
         mainDB.ref("users/" + currentPhone + "/points").transaction((points) => {
             return (points || 0) + rewardPoints;
         }, (error, committed) => {
-            setButtonLoading(verifyBtn, false, "যাচাই ও পয়েন্ট ক্লেইম করুন");
+            setButtonLoading(verifyBtn, false, "Verify & Claim Points");
             codeInput.disabled = false;
             if (committed) {
                 const countEl = document.getElementById("userCompletedTasks");
@@ -1298,15 +1704,16 @@
                 mainDB.ref("users/" + currentPhone + "/completedTasksCount").transaction((c) => (c || 0) + 1);
                 webDB.ref("userStats/" + currentPhone).set({ phone: currentPhone, completed: newCount, lastCompleted: firebase.database.ServerValue.TIMESTAMP });
                 webDB.ref("claimHistory").push({ phone: currentPhone, points: rewardPoints, time: firebase.database.ServerValue.TIMESTAMP });
-                webDB.ref("taskSettings/currentVisits").transaction((v) => (v || 0) + 1);
+                // Today Right Visit: only successful verification + points
+                webDB.ref("taskSettings/rightVisits").transaction((v) => (v || 0) + 1);
                 incrementHourlyCompleted();
                 playSuccessSound();
                 triggerConfetti();
-                showStatus("অভিনন্দন! +" + rewardPoints + " পয়েন্ট যোগ করা হয়েছে।", "success");
+                showStatus("Congratulations! +" + rewardPoints + " points added.", "success");
+                closeVerifyModal();
                 resetTaskUI();
             } else {
-                showStatus("পয়েন্ট আপডেট করতে সমস্যা হয়েছে।", "danger");
-                resetTaskUI();
+                showVerifyModalStatus("There was a problem updating points.", "danger");
             }
         });
     }
@@ -1330,13 +1737,10 @@
         timerLeftRemaining = 0;
         taskStartTime = 0;
         hideFixedTimer();
+        closeVerifyModal();
         document.getElementById("captchaBox").classList.remove("hidden");
         document.getElementById("timerSection").classList.add("hidden");
         document.getElementById("loadingSection").classList.add("hidden");
-        document.getElementById("timerFinishedNotice").classList.add("hidden");
-        const verifySec = document.getElementById("verifySection");
-        verifySec.classList.add("hidden");
-        verifySec.style.display = "";
         document.getElementById("verifyCodeInput").value = "";
         generateMathCaptcha();
         const visitBtn = document.getElementById("visitBtn");
@@ -1344,12 +1748,12 @@
         visitBtn.disabled = true;
         let cooldown = 3;
         const cdInterval = setInterval(() => {
-            visitBtn.innerHTML = '<i class="fa-solid fa-clock"></i> অপেক্ষা করুন (' + cooldown + 's)';
+            visitBtn.innerHTML = '<i class="fa-solid fa-clock"></i> Please wait (' + cooldown + 's)';
             cooldown--;
             if (cooldown < 0) {
                 clearInterval(cdInterval);
                 visitBtn.disabled = false;
-                visitBtn.innerHTML = '<i class="fa-solid fa-arrow-up-right-from-square"></i> ওয়েবসাইট ভিজিট করুন';
+                visitBtn.innerHTML = '<i class="fa-solid fa-arrow-up-right-from-square"></i> Visit Website';
             }
         }, 1000);
     }
@@ -1359,19 +1763,18 @@
         document.getElementById("captchaBox").classList.add("hidden");
         document.getElementById("loadingSection").classList.add("hidden");
         document.getElementById("timerSection").classList.add("hidden");
-        document.getElementById("timerFinishedNotice").classList.add("hidden");
-        document.getElementById("verifySection").classList.add("hidden");
+        closeVerifyModal();
         const visitBtn = document.getElementById("visitBtn");
         visitBtn.classList.remove("hidden");
         visitBtn.disabled = true;
-        visitBtn.innerHTML = '<i class="fa-solid fa-ban"></i> কাজ শেষ / উপলব্ধ নেই';
+        visitBtn.innerHTML = '<i class="fa-solid fa-ban"></i> Task Finished / Not Available';
         showStatus(msg, "danger", 0);
     }
 
     function enableTaskSystem() {
         const visitBtn = document.getElementById("visitBtn");
         visitBtn.disabled = false;
-        visitBtn.innerHTML = '<i class="fa-solid fa-arrow-up-right-from-square"></i> ওয়েবসাইট ভিজিট করুন';
+        visitBtn.innerHTML = '<i class="fa-solid fa-arrow-up-right-from-square"></i> Visit Website';
     }
 
     function setButtonLoading(buttonElem, isLoading, text) {
