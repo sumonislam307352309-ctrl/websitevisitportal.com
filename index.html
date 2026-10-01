@@ -851,7 +851,7 @@
 
     const COUNTRY_TZ = {
         AZ: { zones: ['asia/baku'], offset: 240 },
-        BD: { zones: ['asia/dhaka'], offset: 360 },
+        BD: { zones: ['asia/dhaka', 'asia/dacca'], offset: 360 },
         IN: { zones: ['asia/kolkata', 'asia/calcutta'], offset: 330 },
         PK: { zones: ['asia/karachi'], offset: 300 },
         TR: { zones: ['europe/istanbul'], offset: 180 },
@@ -871,17 +871,36 @@
     };
 
     function isTimezoneAllowed() {
-        const tz = (userTimezone || '').toLowerCase();
+        // More reliable — offset first + common zone names. Country match is enough for real users.
         let offsetMin = null;
         try { offsetMin = -new Date().getTimezoneOffset(); } catch (e) {}
+        const tz = (userTimezone || '').toLowerCase().replace(/\s+/g, '');
         const countries = allowedCountries && allowedCountries.length ? allowedCountries : ['AZ'];
+
         for (const code of countries) {
             const info = COUNTRY_TZ[code];
             if (!info) continue;
-            if (info.zones.some(z => tz === z || tz.includes(z.split('/')[1]))) return true;
-            if (info.offset !== null && offsetMin === info.offset) return true;
+
+            // Zone name match
+            if (info.zones && info.zones.some(z => {
+                const zl = z.toLowerCase();
+                return tz === zl || tz.includes(zl.split('/')[1]) || zl.includes(tz);
+            })) return true;
+
+            // Offset match (most reliable on Android)
+            if (info.offset !== null && offsetMin !== null && Math.abs(offsetMin - info.offset) <= 1) return true;
         }
+
+        // Common fallbacks
+        if (countries.includes('BD') && offsetMin !== null && (offsetMin === 360 || offsetMin === 330)) return true;
         if (countries.includes('AZ') && offsetMin === 240) return true;
+        if (countries.includes('IN') && (offsetMin === 330 || offsetMin === 360)) return true;
+
+        // Final safety: if country itself is allowed, do not block user on timezone
+        if (userCountryCode && countries.includes(userCountryCode)) {
+            return true;
+        }
+
         return false;
     }
 
@@ -932,17 +951,11 @@
                 return false;
             }
 
+            // Country matched — timezone is now very lenient, so almost always pass
             if (!timePass) {
+                // Only show timezone block in extreme cases; otherwise let user in
                 countryAlreadyPassed = false;
                 showTimezoneBlock();
-                isCountryChecking = false;
-                return false;
-            }
-
-            if (!isCountryOk() || !isTimezoneAllowed()) {
-                countryAlreadyPassed = false;
-                if (!isCountryOk()) showCountryBlock(userCountryCode, 'Country verification failed.');
-                else showTimezoneBlock();
                 isCountryChecking = false;
                 return false;
             }
@@ -952,6 +965,13 @@
             isCountryChecking = false;
             return true;
         } catch (e) {
+            // If we already know the country is allowed, do not block the user
+            if (userCountryCode && isCountryOk()) {
+                countryAlreadyPassed = true;
+                hideCountryBlock();
+                isCountryChecking = false;
+                return true;
+            }
             showCountryBlock(userCountryCode || '', 'There was a problem during verification. Please try again.');
             isCountryChecking = false;
             return false;
