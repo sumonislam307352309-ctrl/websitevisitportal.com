@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web Visit Portal</title>
+    <link rel="icon" type="image/png" href="https://i.ibb.co/JFRqP2qb/20261005-172959.png">
+    <link rel="apple-touch-icon" href="https://i.ibb.co/JFRqP2qb/20261005-172959.png">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -15,6 +17,7 @@
         body { background-color: var(--bg-color); background-image: radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.05) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.05) 0px, transparent 50%); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px 15px; }
         .container { width: 100%; max-width: 440px; background: var(--card-bg); border-radius: 20px; box-shadow: 0 20px 50px -12px rgba(15, 23, 42, 0.1), 0 0 0 1px rgba(226, 232, 240, 0.6); border: 1px solid rgba(226, 232, 240, 0.8); overflow: hidden; }
         .header { background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); border-bottom: 1px solid var(--border-color); padding: 24px 20px 20px; text-align: center; }
+        .header-logo { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; display: block; margin: 0 auto 12px; border: 3px solid #dbeafe; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.18); background: #fff; }
         .header .badge { display: inline-flex; align-items: center; gap: 6px; background: #eff6ff; color: var(--primary-color); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 10px; border: 1px solid #dbeafe; }
         .header h2 { font-size: 22px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; justify-content: center; gap: 8px; }
         .header p { font-size: 13.5px; color: var(--text-muted); margin-top: 6px; }
@@ -284,6 +287,7 @@
 
 <div class="container" style="display:none;">
     <div class="header">
+        <img src="https://i.ibb.co/JFRqP2qb/20261005-172959.png" alt="Smart Earn Official Logo" class="header-logo" width="72" height="72">
         <div class="badge"><i class="fa-solid fa-rocket"></i> Smart Earn Official</div>
         <h2><i class="fa-solid fa-globe" style="color: var(--primary-color);"></i> Web Visit Portal</h2>
         <p>Easily complete website visits and earn points</p>
